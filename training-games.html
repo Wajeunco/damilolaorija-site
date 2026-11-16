@@ -1239,6 +1239,112 @@ doors:[["It is a quiet afternoon, and you are doing your fire safety checks on t
 shift:[["It is 6:30pm. You have been on shift since 8am, there is a handover at 7, and you still have records to write."],"What do you do?"],
 plans:[["The shift is over, but two more records need your attention before you leave."],"What do you do?"]};
 MODS.forEach(function(m){m.chars.forEach(function(c){var x=INTRO[c.id];c.intro=x[0];c.ask=x[1];c.facts=[]})});
+
+/* ================= TEACHER REVIEW PASS ================= */
+function SCID(id){var r;MODS.forEach(function(m){m.chars.forEach(function(c){if(c.id===id)r=c})});return r}
+function OPT(c,si,kind){return c.steps[si].opts.filter(function(x){return x.kind===kind})[0]}
+function SETO(c,si,kind,p){var o=OPT(c,si,kind);for(var k in p)o[k]=p[k]}
+function SWAP(c,a,b){c.steps.forEach(function(s){s.opts.forEach(function(o){o.hits=o.hits.map(function(h){return h===a?b:h})})})}
+function REHOT(c,k){var ids=[];c.steps.forEach(function(s){s.opts.forEach(function(p){p.hits.forEach(function(h){if(ids.indexOf(h)<0&&DICT[k][h])ids.push(h)})})});c.hot=gridN(ids.map(function(h){return [h,DICT[k][h][0],DICT[k][h][1]]}))}
+DICT.safeg.bailey=["🧓","Mrs Bailey"];DICT.safeg.reid=["🧓","Mr Reid"];DICT.emerg.taylor=["🧓","Mr Taylor"];
+
+/* names */
+var F=SCID("fridge"),D=SCID("defrost"),FO=SCID("force"),PH=SCID("phone"),CA=SCID("cash"),NO=SCID("notes"),CO=SCID("confide"),LU=SCID("lunchtime"),FA2=SCID("fall"),NI=SCID("night"),DR=SCID("doors"),PL=SCID("plans"),GA=SCID("gaps"),RO=SCID("round");
+
+/* FRIDGE: step 1 matches the delivery in the situation */
+F.steps[0].title="The delivery needs to go in the fridge.";
+F.steps[0].sit="The fridge is nearly full. There is room on the top shelf, the middle shelf and one clear spot on the bottom shelf.";
+F.steps[0].lesson="Raw meat goes on the bottom shelf in sealed containers. Cooked and ready-to-eat food goes above it. Bread does not need the fridge.";
+SETO(F,0,"best",{t:"Put the raw chicken, minced meat, raw beef and sausages in sealed containers on the bottom shelf, and keep the cooked chicken breast and salads on the shelves above.",why:"Raw meat in sealed containers on the bottom shelf cannot touch or drip onto other food. Cooked chicken and salads are eaten without more cooking, so they must sit above, safe from drips."});
+SETO(F,0,"short",{t:"Put the raw chicken and sausages on the top shelf so they are easy to reach and cook first.",why:"Juices from raw meat drip down onto everything below it, including cooked chicken and salads that will be eaten without being cooked again.",hits:["chicken","cooked","salad","juices"]});
+SETO(F,0,"flawed",{t:"Leave the raw meat in its open packs on the middle shelf next to the cooked chicken breast, covered loosely with cling film.",why:"Open packs next to ready-to-eat food are a risk, and loose cling film does not stop drips. Use sealed containers on the bottom shelf.",hits:["chicken","cooked","juices"]});
+SWAP(F,"ham","cooked");
+F.bare=true;F.noDirty=true;
+F.gl=["Food is stored safely","Food is at risk"];F.bn=["Raw meat is stored safely.","Raw juices could now reach other food."];F.hl="Raw juices reached";F.uvTitle="Where the raw juices could reach";F.uvLead="Green means raw juices reached it. White means it stayed clean.";
+
+/* DEFROST: not an infection-spread scenario, so no UV and no glove language */
+D.steps[2].sit="The mince container leaked a little while it defrosted, and juice has run onto the bottom shelf.";
+D.steps[2].lesson="Raw meat juice spreads germs to anything it touches, including shelves and hands. Clean it up straight away with single-use paper towel, then wash your hands.";
+SETO(D,2,"best",{t:"Wipe up the juice with paper towel, clean the shelf with a suitable product, bin the paper towel and wash your hands.",why:"Paper towel is single use, so it does not carry germs anywhere else. Cleaning the shelf and washing your hands stops the juice spreading."});
+SETO(D,2,"short",{why:"Juice left on a shelf spreads to anything placed there, and onto hands that touch the shelf.",hits:["juices","shelf"]});
+SETO(D,2,"flawed",{t:"Wipe it with the tea towel you use for the worktop.",why:"A tea towel used on other surfaces carries raw meat germs everywhere it goes next.",hits:["juices","towel","shelf"]});
+D.bare=true;D.noDirty=true;
+D.gl=["Mince is safe","Mince is at risk"];D.bn=["The mince is being defrosted safely.","The mince is now at risk."];D.mk="⚠️";D.hl="Put at risk";
+D.uvTitle="What your choices put at risk";D.uvLead="Marked items were put at risk. Unmarked items stayed safe.";D.uvBtn="🔍 See what was at risk";D.gate="See what your choices put at risk.";
+D.howExtra="Watch the temperature and the time. Bacteria multiply quickly in warm conditions.";
+F.howExtra="Watch what touches what. Raw juices spread germs to anything below or beside them.";
+
+/* FORCE: step 3 no longer depends on earlier choices */
+FO.steps[2].title="You have had the same gloves on for a while.";
+FO.steps[2].sit="You put these gloves on to make the sandwich. Since then you have opened the fridge, boiled the kettle and tapped the keypad on the kitchenette door. Now it is time to plate it up. The gloves are not torn, so they feel fine.";
+
+/* PHONE: order makes sense and the context is sandwiches */
+SETO(PH,0,"over",{t:"Bin the sandwiches made so far and start again after the call, just in case.",why:"Binning clean food wastes stock and time. If you reset your gloves and hands properly, the sandwiches are still safe."});
+SETO(PH,0,"short",{t:"Answer the phone with your gloved hand and carry on making the sandwiches.",why:"The phone is now covered in whatever was on your gloves, and your gloves now carry whatever was on the phone. Both go straight onto the sandwiches.",hits:["phone","board","sandwich"]});
+SETO(PH,0,"flawed",{why:"The apron has touched many things today. Wiping gloves on it moves germs back onto them, and then onto the phone and everything you touch next."});
+PH.steps[1].title="Your phone has been to the toilet with you.";
+PH.steps[1].sit="You scrolled on your phone in the staff toilet earlier and put it back in your pocket. You have just finished the call and are about to carry on with the sandwiches.";
+SETO(PH,1,"best",{t:"Put the phone away from the food area, take off your gloves, wash your hands with soap and water, and put on fresh gloves before carrying on.",why:"A phone used in the toilet picks up germs and stays dirty. Keeping it away from food and resetting your hands and gloves stops those germs reaching the sandwiches."});
+SETO(PH,1,"short",{t:"Carry on with the sandwiches and keep the phone in your pocket. Your gloves are on, so the food is protected.",why:"The phone has been in the toilet and is still in your pocket beside the food. Gloves do not make a dirty phone safe, and they pick up germs from your pocket as you move."});
+PH.steps[2].title="The tea order is on your phone.";
+PH.steps[2].sit="The list of who is having what for tea is on your phone, propped by the chopping board. Your gloves are on and the screen has gone dark.";
+PH.steps[2].lesson="If you touch a phone, your gloves are contaminated. Use a printed list, or wash your hands and put on fresh gloves after touching it.";
+SETO(PH,2,"best",{t:"Use a printed copy of the order list. If you must touch the phone, take off your gloves, wash your hands, and put on fresh gloves afterwards.",why:"A printed list avoids the problem. If you touch the phone you reset your hands and gloves before touching food again."});
+SETO(PH,2,"over",{t:"Stop making sandwiches and deep clean the whole kitchen because the phone is in the food area.",why:"Moving the phone and washing your hands is enough. Deep cleaning the kitchen wastes time."});
+SETO(PH,2,"short",{t:"Tap the screen with your gloved finger and carry on making the sandwiches.",why:"Your gloves now carry germs from the phone onto the chopping board and the sandwiches.",hits:["phone","board","sandwich","gloves"]});
+SETO(PH,2,"flawed",{why:"Your knuckle and glove still touch the phone. Germs transfer to the glove and then to the food.",hits:["phone","board","sandwich","gloves"]});
+REHOT(PH,"food");
+
+/* CASH */
+CA.steps[2].sit="The tea is almost over. You are wearing the same gloves and have just wiped the tables with a cloth. A ready-to-eat pudding is waiting to be served.";
+
+/* SAFEGUARDING: tokens match the resident in the story */
+SWAP(NO,"clarke","bailey");
+CO.steps[1].opts.forEach(function(o){o.hits=o.hits.map(function(h){return h==="clarke"?"reid":h})});
+REHOT(NO,"safeg");REHOT(CO,"safeg");REHOT(F,"food");REHOT(D,"food");REHOT(FO,"food");
+
+/* EMERGENCIES */
+SWAP(LU,"resident","taylor");REHOT(LU,"emerg");
+LU.steps[1].sit="It started last night, and the two unwell residents are now sitting in the dining room with everyone else. The team is stretched. You need to act before it spreads.";
+SETO(LU,1,"short",{why:"Alcohol gel does not reliably kill norovirus, and sharing the dining room spreads it. Isolation and soap and water are essential."});
+SETO(LU,1,"flawed",{t:"Clean the corridor with the usual spray and carry on, then review it after the meal.",why:"Usual sprays are not enough for vomiting and diarrhoea. Waiting until after the meal gives the illness hours to spread."});
+FA2.bn=LU.bn=["You are keeping things under control.","The situation is getting harder to control."];
+
+/* FIRE */
+NI.steps[1].title="A second alarm sounds and the panel shows Zone 2.";
+NI.steps[1].sit="Minutes later, a second alarm sounds. Zone 2 is the east wing, where several residents need help to move. Last week an alarm there was caused by burnt toast. You are at the panel.";
+DR.steps[1].title="A new resident arrives in a wheelchair, and nobody has written his PEEP.";
+DR.steps[1].sit=DR.steps[1].sit.replace("Mr Singh","Mr Kowalski");
+DR.end.clean=DR.end.clean.replace("Mr Singh","Mr Kowalski");
+
+/* DOCUMENTATION */
+SETO(PL,1,"short",{why:"Entries will look as if you wrote them. If there is ever a problem, nobody can say who did what."});
+
+/* MEDICINES: second scenario is about records, not the round */
+GA.gl=["Record is accurate","Record has a gap"];GA.bn=["This keeps the record honest.","This leaves a gap in the record."];
+
+/* PER-SCENARIO RULES, SO THE SUMMARY MATCHES THE STORY */
+var RUL={
+chicken:["Five rules for raw and ready-to-eat food",["Wash your hands with soap and water before you put gloves on.","Change gloves every time you move from raw food to ready-to-eat food.","Use separate boards, knives and tongs for raw and ready-to-eat food.","Gloves that have touched raw food, packaging or bins are contaminated.","Wash your hands again after you take your gloves off."],"wash, change, keep raw and ready-to-eat apart, wash again."],
+fridge:["Five fridge storage rules",["Store raw meat on the bottom shelf, in sealed containers.","Keep cooked and ready-to-eat food on the shelves above raw food.","Cool cooked food quickly, then cover it and label it with the date before it goes in the fridge.","Throw away food that raw juices have touched. Washing does not make it safe.","Clean spills straight away and tell the cook or manager about storage problems."],"raw at the bottom, sealed, and everything else above."],
+defrost:["Five safe defrosting rules",["Plan ahead. Defrost in the fridge, covered, on the bottom shelf.","Never defrost on the worktop or in warm water.","Use the microwave defrost setting only if you cook the food straight afterwards.","Cook meat only when it is fully defrosted, with no ice in the middle.","Wipe up defrost juices straight away, then wash your hands."],"plan ahead, defrost in the fridge, cook only when fully defrosted.","Food poisoning"],
+force:["Five glove rules",["Wash your hands with soap and water before you put gloves on.","Use gloves for one task, then bin them.","Keep gloves in a clean dispenser or box, never in a pocket.","Change gloves after you touch anything that is not the food you are preparing.","Wash your hands again after you take your gloves off."],"wash, glove, do the task, bin the gloves, wash again."],
+phone:["Four phone and food rules",["Keep your phone out of the food area. Use a locker or bag.","Treat your phone as dirty, especially after the toilet.","If you touch your phone, take off your gloves, wash your hands and put on fresh gloves.","Use printed lists and recipes in the kitchen instead of a phone."],"keep it out of the kitchen, and reset your hands if you touch it."],
+cash:["Four high touch point rules",["Money, pens, clipboards and cleaning cloths are touched by many people. Treat them as dirty.","If your gloves touch them, change gloves and wash your hands before you touch food.","Put cleaning cloths away before you serve ready-to-eat food.","Wash your hands before you put gloves on and after you take them off."],"touch it, reset your hands, then touch food."],
+lunch:["Five rules for mealtimes on the unit",["After personal care, take off your gloves and apron and wash your hands with soap and water before you go near food.","Treat call bells, trolley handles and door handles as dirty.","After touching them, change gloves and wash your hands before you touch food.","Use each resident's own cutlery and plate.","Hand gel does not replace washing your hands with soap and water."],"reset your hands between every task and every resident."],
+round:["Five medicines round rules",["Give one person's medicines at a time, and watch them take them.","Only sign after you have seen the medicine taken.","A refusal is a decision. Record it and tell your senior.","Never hide medicine in food or drink without a proper assessment and a prescriber or pharmacist decision.","Finish the person in front of you before you deal with interruptions."],"give it, see it, sign it, and finish the person in front of you."],
+gaps:["Five records and requests rules",["If you find a possible error, tell your senior or manager straight away and record the facts.","Never sign for something you did not see.","Get clinical advice before you act on a possible missed dose.","Never add or stop a product without a prescriber or pharmacist check.","Be open with the person and their family."],"report it, record it, ask for advice, and be honest."],
+confide:["Five rules for concerns and disclosures",["Never promise to keep a safeguarding concern secret.","Record what was said in the person's own words.","Report to the manager or safeguarding lead straight away.","Do not investigate or confront the person involved.","Record what you see, such as size, colour and place, not what you guess caused it."],"listen, record, report, and never keep it secret."],
+notes:["Five rules for photos and records",["Photos of residents need consent and an approved device.","Never post photos or names of residents in staff chats or on social media.","Raise concerns privately and kindly, and tell the manager.","Record facts, not guesses or labels.","Correct a mistake with a dated, signed late entry. Never delete or overwrite the original."],"consent for photos, facts in notes, and correct mistakes openly."],
+fall:["Five rules after a fall",["Stay with a person who has fallen and do not move them until they have been assessed.","Get help first. Record afterwards.","Tell families promptly and honestly, and apologise.","The manager decides on notifications, including to CQC.","Record the facts once everyone is safe."],"make people safe first, then tell, then record."],
+lunchtime:["Five rules for choking and outbreaks",["If a person can cough, encourage them to keep coughing and stay with them.","If the cough is weak or silent, or they cannot breathe, give 5 back blows, then 5 abdominal thrusts, and call 999.","Never give food or drink to someone who is choking.","During a stomach bug, isolate people and wash hands with soap and water. Gel does not reliably kill norovirus.","Clean with the right product and tell the manager and the local health protection team."],"encourage the cough, act if it fails, and isolate and wash for a stomach bug."],
+night:["Five rules for a fire at night",["Raise the alarm first, then protect people.","Treat every alarm as real until you know otherwise.","Do not open a door to a fire zone to look. Check the panel and the plan.","Move people to the next fire compartment before you consider the whole building.","Do a roll call so everyone is accounted for."],"alarm first, check the panel, doors shut, roll call."],
+doors:["Five rules for fire doors and plans",["Fire doors only work when they are shut. Never wedge them open.","Use an approved hold-open device linked to the alarm if a door must stay open.","Every resident needs a PEEP from the day they arrive.","Keep PEEPs where the whole team can find them.","Test plans with planned drills, not surprise ones."],"doors shut, plans ready on day one."],
+shift:["Five rules for end of shift records",["Write facts, with the date, time and your signature.","Do not guess causes or blame people.","Record as you go. Do not rely on the handover alone.","Write in the official record, never in a personal notebook.","Use the handover to point to the record, not to replace it."],"facts, timed and signed, in the right place."],
+plans:["Five rules for plans and logins",["Update plans and risk assessments as soon as needs change, and date and sign the change.","A sticky note is not part of the record.","Never share logins, even to save time.","Every entry must be traceable to the person who made it.","Tell the manager when a system problem stops staff recording."],"keep plans current, and keep every entry traceable."]
+};
+MODS.forEach(function(m){m.chars.forEach(function(c){var r=RUL[c.id];if(r){c.rulesTitle=r[0];c.rules=r[1];c.short=r[2];if(r[3])c.outTag=r[3]}})});
+MODS[0].gloss.push(["Defrosting","Bringing frozen food to a safe temperature. Do it in the fridge, covered, on the bottom shelf, so bacteria cannot multiply and juices cannot drip."],["Sealed container","A container with a lid that closes, used to store raw meat so juices cannot leak onto other food."]);
 /* ================= STATE ================= */
 var S={screen:'hub',mi:0,ci:0,step:0,order:[],pick:null,m:{s:0,t:0,c:0,risk:0},glove:'clean',trail:[],res:null,done:{},modal:null};
 var mod=function(){return MODS[S.mi]};
@@ -1304,7 +1410,7 @@ function rDecision(){
   var c=ch(),st=cur();
   if(!S.order.length)S.order=shuffle([0,1,2,3]);
   var o=S.order.map(function(oi,i){return '<button class="obtn" data-a="choose" data-i="'+oi+'"><span class="L">'+LET[i]+'</span><span>'+esc(st.opts[oi].t)+'</span></button>'}).join('');
-  app.innerHTML=topbar()+tools()+'<div class="stage"><div class="lcard"><span class="step-lab">Decision '+(S.step+1)+' of '+c.steps.length+'</span><h2>'+esc(st.title)+'</h2><p class="sit">'+esc(st.sit)+'</p><div class="obtns" role="group" aria-label="Choose what to do">'+o+'</div><p class="hint">Playing with a team? Talk it through together before you choose.</p></div><div class="scenewrap">'+sceneSVG(c,S.glove==='dirty')+'</div></div>';
+  app.innerHTML=topbar()+tools()+'<div class="stage"><div class="lcard"><span class="step-lab">Decision '+(S.step+1)+' of '+c.steps.length+'</span><h2>'+esc(st.title)+'</h2><p class="sit">'+esc(st.sit)+'</p><div class="obtns" role="group" aria-label="Choose what to do">'+o+'</div><p class="hint">Playing with a team? Talk it through together before you choose.</p></div><div class="scenewrap">'+sceneSVG(c,S.glove==='dirty'&&!c.noDirty)+'</div></div>';
 }
 function rFeedback(){
   var c=ch(),st=cur(),op=st.opts[S.pick],d=op.glove==='dirty';
@@ -1316,7 +1422,7 @@ function rFeedback(){
    '<div class="why"><b>What happened:</b> '+esc(op.why)+'</div>'+
    '<div class="fb"><div class="fbrow"><b>Safety '+op.s+pips(op.s,'#0C0C0D')+'</b><span>'+SAFE_TXT[op.s]+'</span></div><div class="fbrow"><b>Pace '+op.tm+pips(op.tm,'#0C0C0D')+'</b><span>'+TIME_TXT[op.tm]+'</span></div><div class="fbrow"><b>Resources '+op.c+pips(op.c,'#0C0C0D')+'</b><span>'+COST_TXT[op.c]+'</span></div></div>'+
    (hits?'<div><small class="smlab">'+esc(c.hl)+'</small></div><div class="trailrow">'+hits+'</div>':'')+
-   '<div class="lesson"><small>Remember this</small>'+esc(st.lesson)+'</div><button class="btn" data-a="next">'+(last?esc(c.uvBtn.replace(/^\S+\s/,'')):'Continue')+'</button></div><div class="scenewrap">'+sceneSVG(c,d)+'</div></div>';
+   '<div class="lesson"><small>Remember this</small>'+esc(st.lesson)+'</div><button class="btn" data-a="next">'+(last?esc(c.uvBtn.replace(/^\S+\s/,'')):'Continue')+'</button></div><div class="scenewrap">'+sceneSVG(c,d&&!c.noDirty)+'</div></div>';
 }
 function finish(){
   var m=S.m,R=m.risk,n=ch().steps.length,oT=n>=3?5:4,e=R<=1?'clean':(R<oT?'near':'out');
@@ -1334,18 +1440,18 @@ function rResult(){
   var toks=c.hot.map(function(h){var b=hit[h.id];var dly=b?(order.indexOf(h.id)*0.5+0.4):0.2;return '<div class="tok '+(b?'bad':'ok')+'" style="left:'+h.x+'%;top:'+h.y+'%;--d:'+dly+'s"><span class="gx">'+c.mk+'</span><span class="ti">'+h.i+'</span><span class="tl">'+esc(h.l)+'</span></div>'}).join('');
   var lines='';
   for(var i=1;i<order.length;i++){var a=byId[order[i-1]],b=byId[order[i]];if(a&&b)lines+='<line class="trl" x1="'+a.x+'" y1="'+a.y+'" x2="'+b.x+'" y2="'+b.y+'" style="--d:'+(i*0.5+0.1)+'s"/>'}
-  var tag=r.e==='clean'?(r.st===3?['good','Safe and balanced']:['good','Safe, but over the top']):(r.e==='near'?['mid','A near miss']:['bad',M.outTag]);
+  var tag=r.e==='clean'?(r.st===3?['good','Safe and balanced']:['good','Safe, but over the top']):(r.e==='near'?['mid','A near miss']:['bad',c.outTag||M.outTag]);
   var emoji=r.e==='clean'?'🎉':(r.e==='near'?'😬':'🚨');
   var extra=r.e==='clean'?'':'<p class="note">'+(r.e==='near'?'Follow-up work added 2 to your Pace score and 1 to your Resources score.':'Dealing with the fallout added 5 to your Pace score and 5 to your Resources score.')+'</p>';
   var bar=function(l,v,mx,col){return '<div class="sbar" style="--mc:'+col+'"><span>'+l+'</span><div class="track"><div class="fill" data-w="'+Math.min(100,v/mx*100)+'"></div></div><span>'+v+'</span></div>'};
   var nxt='<button class="btn sm" data-a="chars">Play another scenario</button>';
   app.innerHTML=topbar()+'<div class="uvwrap"><div class="uvhead"><h2>'+esc(c.uvTitle)+'</h2><span class="uvlead">'+esc(c.uvLead)+'</span></div><div class="board" id="board">'+toks+'<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">'+lines+'</svg><div class="uvgate" id="gate"><div><p>'+esc(c.gate)+'</p><button class="btn" data-a="uv">'+esc(c.uvBtn)+'</button></div></div></div></div>'+
    '<div class="result" id="result" style="display:none"><div class="lcard verdict"><div class="vemoji" aria-hidden="true">'+emoji+'</div><div class="vstars" aria-label="'+r.st+' out of 3 stars">'+stars(r.st)+'</div><span class="vtag '+tag[0]+'">'+tag[1]+'</span><p>'+esc(c.end[r.e])+'</p><div class="scorebars">'+bar('Safety',S.m.s,3*ch().steps.length,'#0C0C0D')+bar('Pace',r.t,3*ch().steps.length+2,'#55555b')+bar('Resources',r.c,3*ch().steps.length+2,'#9a9aa0')+'</div>'+extra+(r.st<3?'<p class="note">'+(r.e==='clean'?'For three stars, stay safe without spending more than you need to.':'Replay to try for a clean ending.')+'</p>':'')+'<div class="row" style="justify-content:center"><button class="btn sm" data-a="replay">Play this scenario again</button>'+nxt+'<button class="btn ghost sm" data-a="hub">All modules</button></div></div>'+
-   '<div class="rules"><h3>'+esc(M.rulesTitle)+'</h3><ol>'+M.rules.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ol><p class="note" style="margin:10px 0 0">In short: '+esc(M.short)+'</p></div></div>';
+   '<div class="rules"><h3>'+esc(c.rulesTitle||M.rulesTitle)+'</h3><ol>'+(c.rules||M.rules).map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ol><p class="note" style="margin:10px 0 0">In short: '+esc(c.short||M.short)+'</p></div></div>';
 }
 function modal(){
   var h='';
-  if(S.modal==='how')h='<h2>How to play</h2><ul><li>Pick a module, then a scenario. You always play the carer, and each scenario is a short story with its own traps.</li><li>Each scenario has a few decisions. Pick the option you think is best.</li><li>Every choice changes three scores. Safety is your protection. Pace and Resources show how much time and stock your choice uses up.</li><li>'+(S.screen==='hub'?'In some modules, a status chip shows whether things are under control.':esc(mod().howExtra))+'</li><li>At the end, a reveal shows where the risk spread, and you earn up to three stars.</li><li>Playing with a team on a shared screen? Talk through each choice before you pick.</li></ul>';
+  if(S.modal==='how')h='<h2>How to play</h2><ul><li>Pick a module, then a scenario. You always play the carer, and each scenario is a short story with its own traps.</li><li>Each scenario has a few decisions. Pick the option you think is best.</li><li>Every choice changes three scores. Safety is your protection. Pace and Resources show how much time and stock your choice uses up.</li><li>'+(S.screen==='hub'?'In some modules, a status chip shows whether things are under control.':esc(ch().howExtra||mod().howExtra))+'</li><li>At the end, a reveal shows where the risk spread, and you earn up to three stars.</li><li>Playing with a team on a shared screen? Talk through each choice before you pick.</li></ul>';
   if(S.modal==='gloss')h='<h2>Glossary</h2><dl>'+mod().gloss.map(function(g){return '<dt>'+esc(g[0])+'</dt><dd>'+esc(g[1])+'</dd>'}).join('')+'</dl>';
   if(S.modal==='sit'){var c=ch();h='<h2>'+esc(c.sub)+'</h2>'+c.intro.map(function(p){return '<p>'+esc(p)+'</p>'}).join('')+'<p class="ask">'+esc(c.ask)+'</p>'}
   var old=$('.modal');if(old)old.remove();
