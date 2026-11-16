@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Training Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#1b1738;--bg2:#2b2460;--card:#f5f2ff;--ink:#1b1738;--muted:#575078;--cta:#f4a83a;--glove:#46c2ff;--uv:#7dff6a;--bad:#ff5d73;--good:#2fbf71;--radius:22px}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,Segoe UI,sans-serif;color:#fff;font-size:18px;line-height:1.45;background:radial-gradient(900px 560px at 85% -8%,#4a3bb0 0%,transparent 60%),radial-gradient(700px 500px at -5% 105%,#1d5f86 0%,transparent 60%),linear-gradient(170deg,var(--bg),var(--bg2));background-attachment:fixed;overflow-x:hidden}
+h1,h2,h3,.disp{font-family:'Plus Jakarta Sans','Plus Jakarta Sans',sans-serif;font-weight:600;margin:0}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+button:focus-visible{outline:4px solid var(--cta);outline-offset:3px}
+#app{max-width:1180px;margin:0 auto;padding:18px 16px 48px;position:relative;z-index:2}
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:60}
+.floaters{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+.floaters span{position:absolute;font-size:34px;opacity:.1;animation:drift 16s ease-in-out infinite}
+.floaters span:nth-child(1){left:6%;top:18%}.floaters span:nth-child(2){left:88%;top:12%;animation-delay:-4s}.floaters span:nth-child(3){left:12%;top:78%;animation-delay:-8s}.floaters span:nth-child(4){left:80%;top:70%;animation-delay:-11s}.floaters span:nth-child(5){left:48%;top:92%;animation-delay:-6s}
+@keyframes drift{50%{transform:translate(18px,-26px) rotate(12deg)}}
+
+.btn{display:inline-block;background:var(--cta);color:#1b1738;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:1.2rem;padding:13px 28px;border-radius:14px;box-shadow:0 6px 0 #b9761b;transition:transform .1s,box-shadow .1s}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #b9761b}
+.btn.ghost{background:transparent;color:#fff;box-shadow:inset 0 0 0 3px rgba(255,255,255,.55)}
+.btn.sm{font-size:.95rem;padding:8px 16px;box-shadow:0 4px 0 #b9761b}
+.btn.ghost.sm{box-shadow:inset 0 0 0 2px rgba(255,255,255,.55)}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+
+/* title */
+.brandbar{display:flex;align-items:center;gap:10px;color:#cfd8ff;font-weight:800;font-size:.95rem;margin-bottom:6px}
+.brandbar .dot{width:12px;height:12px;border-radius:50%;background:var(--glove);box-shadow:0 0 12px var(--glove)}
+.title-screen{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center;min-height:70vh}
+.tcopy h1{font-size:clamp(2.6rem,7vw,4.4rem);line-height:1.02;color:#d8f1ff;margin-bottom:14px}
+.tcopy h1 em{font-style:normal;color:var(--uv);text-shadow:0 0 18px rgba(125,255,106,.5)}
+.lead{font-size:1.2rem;color:#d6dcff;margin:0 0 22px;max-width:520px}
+.thero svg{width:100%;height:auto;max-height:520px}
+@media(max-width:820px){.title-screen{grid-template-columns:1fr;min-height:0}.thero{order:-1}.thero svg{max-height:300px}}
+
+/* generic light card */
+.lcard{background:var(--card);color:var(--ink);border-radius:var(--radius);padding:22px;box-shadow:0 14px 34px rgba(0,0,0,.35)}
+.lcard h2{font-size:1.55rem;margin-bottom:8px}
+.lcard p{margin:0 0 12px}
+.lcard ul{margin:0 0 14px;padding-left:22px}
+.lcard li{margin-bottom:6px}
+.panel{max-width:760px;margin:20px auto 0}
+.panel h2{color:#d8f1ff;font-size:2rem;margin-bottom:10px}
+.panel p{color:#d6dcff}
+
+/* characters */
+.chars{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;margin-top:20px}
+.cbtn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px;border-radius:20px;transition:transform .2s,background .2s;animation:rise .6s both}
+.cbtn:nth-child(2){animation-delay:.08s}.cbtn:nth-child(3){animation-delay:.16s}.cbtn:nth-child(4){animation-delay:.24s}
+.cbtn:hover{transform:translateY(-6px);background:rgba(255,255,255,.08)}
+.cbtn svg{width:170px;height:auto;filter:drop-shadow(0 8px 14px rgba(0,0,0,.35))}
+.cname{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.5rem}
+.crole{color:#cfd8ff;font-weight:800;font-size:.95rem;text-align:center}
+.cstars{font-size:1.1rem;letter-spacing:2px;min-height:1.5em}
+@keyframes rise{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+
+/* hud */
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:12px}
+.top .lab{color:#9db0ff;font-weight:800;font-size:.9rem;letter-spacing:.04em;text-transform:uppercase}
+.top h2{font-size:clamp(1.15rem,3vw,1.6rem);color:#e7f4ff}
+.meters{display:flex;flex-wrap:wrap;gap:8px}
+.meter,.gstat{display:flex;align-items:center;gap:7px;padding:5px 12px;border-radius:12px;font-weight:800;font-size:.95rem;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 2px var(--mc,#fff)}
+.meter b{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.15rem;min-width:1.2em;text-align:center}
+.m-s{--mc:#b36bff}.m-t{--mc:#7fb4ff}.m-c{--mc:#ffc15a}
+.gstat.ok{--mc:var(--glove);color:#d6f3ff}
+.gstat.bad{--mc:var(--uv);color:#eaffe0;background:rgba(125,255,106,.15);animation:gpulse 1.2s ease-in-out infinite}
+@keyframes gpulse{50%{box-shadow:inset 0 0 0 2px var(--uv),0 0 16px rgba(125,255,106,.55)}}
+
+/* stage */
+.stage{display:grid;grid-template-columns:1.05fr .95fr;gap:20px;align-items:start}
+@media(max-width:860px){.stage{grid-template-columns:1fr}.scenewrap{order:-1}}
+.scenewrap{border-radius:26px;overflow:hidden;box-shadow:0 14px 34px rgba(0,0,0,.45);background:#111;position:sticky;top:12px}
+@media(max-width:860px){.scenewrap{position:relative;top:0}}
+.scenewrap svg{display:block;width:100%;height:auto}
+.toolrow{display:flex;gap:8px;justify-content:flex-end;margin:-4px 0 10px}
+.step-lab{display:inline-block;background:var(--ink);color:#fff;border-radius:999px;padding:2px 14px;font-weight:800;font-size:.85rem;margin-bottom:8px}
+.sit{font-size:1.08rem}
+.obtns{display:grid;gap:10px;margin-top:14px}
+.obtn{display:flex;gap:12px;text-align:left;align-items:flex-start;background:#251f55;color:#fff;border-radius:14px;padding:12px 14px;font-weight:700;font-size:1rem;line-height:1.35;border-bottom:4px solid transparent;transition:transform .15s,border-color .15s,background .15s;animation:rise .45s both}
+.obtn:nth-child(2){animation-delay:.07s}.obtn:nth-child(3){animation-delay:.14s}.obtn:nth-child(4){animation-delay:.21s}
+.obtn:hover{transform:translateY(-2px);border-bottom-color:var(--cta);background:#30287a}
+.obtn .L{flex:0 0 32px;height:32px;border-radius:9px;background:#fff;color:var(--ink);display:grid;place-items:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:1.05rem}
+.hint{color:var(--muted);font-size:.92rem;margin-top:12px}
+
+/* feedback */
+.yours{background:#fff;border-radius:14px;padding:10px 14px;margin-bottom:12px;border-left:6px solid var(--ink);font-weight:700}
+.yours small{display:block;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.04em;font-size:.78rem}
+.gbanner{display:flex;align-items:center;gap:10px;border-radius:14px;padding:10px 14px;font-weight:800;margin-bottom:12px;animation:rise .5s both}
+.gbanner.ok{background:#d9f3ff;color:#0c5578}
+.gbanner.bad{background:#2b3a2c;color:var(--uv);box-shadow:0 0 0 2px var(--uv),0 0 20px rgba(125,255,106,.45)}
+.gbanner .gi{font-size:1.6rem}
+.fb{display:grid;gap:8px;margin:10px 0 12px}
+.fbrow{display:grid;grid-template-columns:92px 1fr;gap:10px;align-items:start;font-size:.98rem}
+.fbrow b{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.05rem}
+.pips{display:inline-flex;gap:3px;margin-left:6px;vertical-align:middle}
+.pip{width:9px;height:9px;border-radius:50%;background:#d4cdee}
+.pip.on{background:var(--pc,#b36bff)}
+.why{background:#fff;border-radius:14px;padding:12px 14px;margin-bottom:12px}
+.trailrow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.tchip{background:#1d3a24;color:var(--uv);border-radius:999px;padding:3px 12px;font-weight:800;font-size:.9rem;box-shadow:inset 0 0 0 1.5px var(--uv)}
+.lesson{background:#fff3c9;border-radius:14px;padding:12px 14px;margin-bottom:14px;font-weight:700}
+.lesson small{display:block;color:#7a5a00;text-transform:uppercase;letter-spacing:.04em;font-size:.78rem;font-weight:800}
+
+/* uv */
+.uvwrap{background:#0b0a1c;border-radius:26px;padding:16px;box-shadow:0 14px 34px rgba(0,0,0,.5);position:relative;overflow:hidden}
+.uvhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.uvhead h2{color:#d8f1ff;font-size:1.5rem}
+.board{position:relative;height:340px;border-radius:18px;background:radial-gradient(circle at 50% 40%,#1a1740,#0b0a1c 70%);overflow:hidden}
+.board.on{box-shadow:inset 0 0 60px rgba(125,255,106,.12)}
+.board svg{position:absolute;inset:0;width:100%;height:100%}
+.trl{fill:none;stroke:var(--uv);stroke-width:3px;stroke-linecap:round;opacity:0;filter:drop-shadow(0 0 4px var(--uv))}
+.board.on .trl{animation:draw .6s forwards;animation-delay:var(--d)}
+@keyframes draw{to{opacity:.9}}
+.tok{position:absolute;transform:translate(-50%,-50%);width:96px;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;transition:.5s;transition-delay:var(--d)}
+.tok .ti{width:54px;height:54px;border-radius:16px;background:#262352;display:grid;place-items:center;font-size:1.7rem;transition:inherit;box-shadow:inset 0 0 0 2px #3a3680}
+.tok .tl{font-size:.78rem;font-weight:800;color:#9aa0d4;line-height:1.15}
+.board.on .tok.bad .ti{background:#17381d;box-shadow:inset 0 0 0 3px var(--uv),0 0 22px rgba(125,255,106,.75);animation:glowp 1.6s ease-in-out infinite;animation-delay:var(--d)}
+.board.on .tok.bad .tl{color:var(--uv)}
+.board.on .tok.ok .ti{box-shadow:inset 0 0 0 3px #4cc3ff;background:#162a4a}
+.board.on .tok.ok .tl{color:#9fdcff}
+.tok .gx{position:absolute;top:-8px;right:8px;font-size:1.2rem;opacity:0;transition:.4s;transition-delay:var(--d)}
+.board.on .tok.bad .gx{opacity:1;animation:wob 1.6s ease-in-out infinite}
+@keyframes glowp{50%{box-shadow:inset 0 0 0 3px var(--uv),0 0 34px rgba(125,255,106,.95)}}
+@keyframes wob{50%{transform:translateY(-4px) rotate(10deg)}}
+.uvgate{position:absolute;inset:0;display:grid;place-items:center;background:rgba(7,6,20,.78);z-index:3;transition:opacity .6s;text-align:center;padding:20px}
+.uvgate.off{opacity:0;pointer-events:none}
+.uvgate p{color:#d6dcff;margin:0 0 14px}
+.result{margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:860px){.result{grid-template-columns:1fr}}
+.verdict{text-align:center}
+.vemoji{font-size:3.4rem;animation:float 2.4s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-8px)}}
+.vstars{font-size:2rem;letter-spacing:4px;margin:2px 0 4px}
+.vtag{display:inline-block;border-radius:999px;padding:3px 14px;font-weight:800;margin-bottom:8px;font-size:.95rem}
+.vtag.good{background:#d4f6e3;color:#0d6b3a}.vtag.mid{background:#ffe9bd;color:#7a5200}.vtag.bad{background:#ffd3da;color:#9c1730}
+.scorebars{display:grid;gap:8px;margin:12px 0}
+.sbar{display:grid;grid-template-columns:80px 1fr 38px;gap:10px;align-items:center;font-weight:800;font-size:.95rem}
+.track{height:12px;border-radius:99px;background:#ddd6f3;overflow:hidden}
+.fill{height:100%;border-radius:99px;background:var(--mc);transition:width 1.2s cubic-bezier(.2,.9,.2,1);width:0}
+.rules{background:#fff;color:var(--ink);border-radius:16px;padding:14px 16px;align-self:start}
+.rules h3{font-size:1.15rem;margin-bottom:8px}
+.rules ol{margin:0;padding-left:22px}
+.rules li{margin-bottom:6px}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(8,6,24,.8);z-index:40;display:grid;place-items:center;padding:16px;animation:fade .25s both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.mbox{background:var(--card);color:var(--ink);border-radius:22px;padding:22px;max-width:620px;width:100%;max-height:86vh;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.mbox h2{font-size:1.6rem;margin-bottom:10px}
+.mbox dt{font-weight:800;margin-top:10px}
+.mbox dd{margin:2px 0 0;color:#3b3560}
+.mbox ul{padding-left:20px}
+.mbox li{margin-bottom:6px}
+.mclose{margin-top:14px}
+
+/* svg animation */
+.breathe{transform-box:fill-box;transform-origin:50% 100%;animation:breathe 3.4s ease-in-out infinite}
+@keyframes breathe{50%{transform:scaleY(1.012)}}
+.gtint{opacity:0;transition:opacity .6s}
+svg.dirty .gtint{opacity:.5}
+.germs{opacity:0;transition:opacity .5s}
+svg.dirty .germs{opacity:1}
+.gm{fill:#7dff6a;stroke:#2fa02a;stroke-width:1;animation:gup 2s ease-in infinite}
+@keyframes gup{0%{transform:translateY(0);opacity:.95}100%{transform:translateY(-18px);opacity:0}}
+svg .m-bad,svg .sweat{display:none}
+svg.dirty .m-bad{display:inline}
+svg.dirty .m-ok{display:none}
+svg.dirty .sweat{display:inline;animation:drip 1.4s ease-in infinite}
+@keyframes drip{0%{transform:translateY(-4px);opacity:0}30%{opacity:1}100%{transform:translateY(10px);opacity:0}}
+.steam{animation:steam 3s ease-in-out infinite;opacity:0}
+.steam.s2{animation-delay:1s}.steam.s3{animation-delay:2s}
+@keyframes steam{0%{transform:translateY(0);opacity:0}30%{opacity:.7}100%{transform:translateY(-26px);opacity:0}}
+.blinkr{animation:blinkr 1s steps(2) infinite}
+@keyframes blinkr{50%{opacity:.25}}
+.twk{animation:twk 2.6s ease-in-out infinite}
+@keyframes twk{50%{opacity:.2}}
+.fl{animation:float 3s ease-in-out infinite}
+.spin60{transform-origin:240px 44px;animation:spin 60s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sunr{animation:float 4s ease-in-out infinite}
+.germ-eyes{animation:blink 4s infinite}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+/* ===== Brand layer: Damilola Orija ===== */
+:root{--bg:#0C0C0D;--bg2:#0C0C0D;--card:#f4f4f2;--ink:#0C0C0D;--muted:#5c5c62;--cta:#fff;--line:rgba(255,255,255,.16);--radius:20px}
+body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,Segoe UI,sans-serif;background:radial-gradient(900px 520px at 100% -10%,#26262a 0%,transparent 60%),#0C0C0D;background-attachment:fixed;font-size:17px}
+h1,h2,h3,.disp{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;letter-spacing:-.02em}
+.floaters{display:none}
+.btn{background:#fff;color:#0C0C0D;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1rem;border-radius:999px;padding:13px 26px;box-shadow:none}
+.btn:hover{transform:none;background:#e9e9ec}.btn:active{transform:scale(.98);box-shadow:none}
+.btn.sm{font-size:.9rem;padding:9px 18px;box-shadow:none}
+.btn.ghost{background:transparent;color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.6)}
+.btn.ghost:hover{background:rgba(255,255,255,.1)}.btn.ghost.sm{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.55)}
+.lcard .btn,.mbox .btn{background:#0C0C0D;color:#fff}.lcard .btn:hover,.mbox .btn:hover{background:#2a2a2e}
+.lcard .btn.ghost{background:transparent;color:#0C0C0D;box-shadow:inset 0 0 0 1.5px #0C0C0D}.lcard .btn.ghost:hover{background:rgba(0,0,0,.06)}
+button:focus-visible{outline:3px solid #fff;outline-offset:3px}.lcard button:focus-visible,.mbox button:focus-visible{outline-color:#0C0C0D}
+.eyebrow{display:block;text-transform:uppercase;letter-spacing:.14em;font-size:.72rem;font-weight:700;color:#b9b9c0}
+/* masthead and hub */
+.mast{display:flex;justify-content:space-between;align-items:baseline;padding:4px 0 26px;border-bottom:1px solid var(--line);margin-bottom:34px}
+.wm{font-weight:800;font-size:1.1rem;letter-spacing:-.01em}.by{color:#a9a9b0;font-size:.85rem;font-weight:500}
+.hubhead{max-width:820px;margin-bottom:38px}
+.hubhead h1{font-size:clamp(2.6rem,8vw,5.2rem);line-height:1;margin:10px 0 16px}
+.hubhead .soft{color:#8d8d95}
+.lead{font-size:1.12rem;color:#d4d4d9;max-width:620px;margin:0 0 22px;font-weight:400}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.tile{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:6px;background:#141416;border:1px solid var(--line);border-radius:22px;padding:22px 22px 18px;min-height:340px;transition:transform .2s,border-color .2s,background .2s;color:#fff;animation:rise .6s both}
+.tile:nth-child(2){animation-delay:.06s}.tile:nth-child(3){animation-delay:.12s}.tile:nth-child(4){animation-delay:.18s}
+button.tile:hover{transform:translateY(-4px);border-color:#fff;background:#1a1a1d}
+.tile .num{font-size:clamp(3.4rem,8vw,4.8rem);font-weight:800;line-height:1;letter-spacing:-.04em;margin-bottom:8px}
+.tile .tt{font-size:1.45rem;font-weight:800;letter-spacing:-.02em;margin-top:4px}
+.tile .tg{font-size:.9rem;color:#a9a9b0;font-weight:600}
+.tile .tb{color:#d4d4d9;font-size:.98rem;line-height:1.45;margin-top:6px}
+.tile .tf{margin-top:auto;padding-top:14px;display:flex;justify-content:space-between;align-items:center;width:100%}
+.prog{font-size:.85rem;color:#b9b9c0;font-weight:600}
+.circ{width:42px;height:42px;border-radius:50%;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.6);display:grid;place-items:center;transition:.2s}
+button.tile:hover .circ{background:#fff;color:#0C0C0D}
+.tile.soon{border-style:dashed;background:transparent;color:#8d8d95}.tile.soon .num{color:#3b3b40}
+.crumb{margin-bottom:6px}.back{color:#d4d4d9;font-weight:600;padding:6px 0}.back:hover{color:#fff;text-decoration:underline}
+.panel{max-width:760px;margin:16px auto 0}.panel h2{font-size:clamp(2rem,6vw,3rem);margin:6px 0 10px;color:#fff}.panel p{color:#d4d4d9}
+.cbtn{background:#141416;border:1px solid var(--line);border-radius:22px}.cbtn:hover{background:#1a1a1d;border-color:#fff;transform:translateY(-4px)}
+.cname{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800}.crole{color:#b9b9c0}.cstars{color:#fff}
+/* hud */
+.top .lab{color:#b9b9c0;font-weight:700;letter-spacing:.12em}.top h2{color:#fff;font-weight:800}
+.meter,.gstat{background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1.5px var(--mc,#fff);border-radius:999px;padding:5px 14px}
+.meter b{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800}
+.m-s{--mc:#fff}.m-t{--mc:#c8c8cd}.m-c{--mc:#8d8d95}
+.gstat.ok{--mc:#fff;color:#fff}
+.gstat.bad{--mc:#7dff6a;color:#eaffe0;background:rgba(125,255,106,.12)}
+/* stage */
+.scenewrap{border-radius:24px;box-shadow:0 0 0 1px var(--line),0 16px 40px rgba(0,0,0,.5)}
+.lcard{background:var(--card);color:var(--ink);border-radius:var(--radius);box-shadow:0 16px 40px rgba(0,0,0,.45)}
+.lcard h2{font-weight:800;color:#0C0C0D}
+.step-lab{background:#0C0C0D;color:#fff;border-radius:999px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:.72rem;padding:4px 14px}
+.obtn{background:#0C0C0D;color:#fff;border-radius:14px;border:1px solid #0C0C0D;border-bottom-width:1px;font-weight:600}
+.obtn:hover{transform:translateY(-2px);background:#26262a;border-color:#0C0C0D}
+.obtn .L{background:#fff;color:#0C0C0D;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800}
+.yours{border-left-color:#0C0C0D}
+.gbanner.ok{background:#e6e6e9;color:#0C0C0D}
+.gbanner.bad{background:#14210f;color:#7dff6a;box-shadow:0 0 0 2px #7dff6a}
+.pip{background:#d4d4d9}.pip.on{background:#0C0C0D}
+.fbrow b{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800}
+.smlab{font-weight:800;color:#5c5c62;text-transform:uppercase;letter-spacing:.06em;font-size:.76rem}
+.lesson{background:#e6e6e9;border-left:5px solid #0C0C0D}.lesson small{color:#5c5c62}
+.note{font-size:.93rem;color:#5c5c62}
+/* result */
+.uvwrap{border:1px solid var(--line)}.uvhead h2{color:#fff}.uvlead{color:#a9a9b0;font-weight:600;font-size:.92rem}
+.verdict .vstars{color:#0C0C0D;font-size:2rem;letter-spacing:4px;margin:2px 0 4px}
+.vtag{font-weight:800}.vtag.good{background:#0C0C0D;color:#fff}.vtag.mid{background:#d4d4d9;color:#0C0C0D}.vtag.bad{background:#fff;color:#0C0C0D;box-shadow:inset 0 0 0 2px #0C0C0D}
+.sbar{font-weight:700}.track{background:#d9d9de}
+.rules{background:#fff;color:#0C0C0D;align-self:start}.rules h3{font-weight:800}
+.board.on .tok.ok .ti{box-shadow:inset 0 0 0 3px #fff;background:#1d1d22}.board.on .tok.ok .tl{color:#fff}
+.tok .tl{color:#a9a9b0}
+.lcard dt,.mbox dt{font-weight:800}
+.trl{stroke:#7dff6a}
+
+.trl{vector-effect:non-scaling-stroke;stroke-width:3px}
+
+.scns{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin-top:22px}
+.scn{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:8px;padding:20px;border:1.5px solid #0C0C0D;border-radius:20px;background:#fff;color:#0C0C0D;min-height:190px}
+.scn:hover,.scn:focus-visible{background:#0C0C0D;color:#fff}
+.scn .sn{font-size:40px;font-weight:800;letter-spacing:-.03em;line-height:1}
+.scn .st{font-size:18px;font-weight:800;line-height:1.2}
+.scn .sb{font-size:14px;line-height:1.4;opacity:.75;flex:1}
+.scn .sf{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:700}
+.board{height:380px!important}
+.ask{font-size:20px;font-weight:800;margin-top:14px}
+
+</style>
+</head>
+<body>
+<div class="floaters" aria-hidden="true"><span>🦠</span><span>🧤</span><span>🍽️</span><span>🧼</span><span>🦠</span></div>
+<canvas id="confetti" aria-hidden="true"></canvas>
+<div id="app"></div>
+
+<script>
+(function(){
+'use strict';
+var $=function(s,r){return (r||document).querySelector(s)};
+var app=$('#app');
+var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+var shuffle=function(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a};
+var LET='ABCD';
+
+/* ================= CONTENT ================= */
+/* O(kind, text, safety, time, cost, risk, germ hits, explanation). Kinds: best, over, short, flawed. */
+function O(kind,t,s,tm,c,risk,hits,why){return {kind:kind,t:t,s:s,tm:tm,c:c,risk:risk,hits:hits,glove:(kind==='best'||kind==='over')?'clean':'dirty',why:why}}
+
+var FOODCH=[
+/* ---------- 1. AMARA ---------- */
+{id:'amara',name:'Amara',role:'Cook',scene:'kitchen',accent:'#f4a83a',pastel:'#fde7c0',
+ skin:'#7a4a2b',skinDk:'#6a3d22',hair:'afro',hairC:'#1a1412',top:'#f6f6fa',outfit:'chef',sleeve:'long',
+ sub:'Amara is cooking lunch for 24 residents.',
+ intro:["It is 11:15am in the care home kitchen. Lunch is chicken curry with a fresh side salad, and it has to be on the tables at 12:30.","Amara is wearing disposable gloves, so she feels well protected. The unit lead has asked her to hurry. Your job is to help her get lunch out safely without wasting time or money."],
+ facts:["24 residents will eat this meal, and several have weak immune systems.","Raw chicken and a ready-to-eat salad are being prepared in the same kitchen.","The salad will not be cooked again, so nothing will kill germs that land on it."],
+ gl:['Gloves are clean','Gloves are contaminated'],uvTitle:'Where the germs travelled',uvLead:'Green means germs reached it. Blue means it stayed clean.',
+ hot:[{id:'chicken',i:'🍗',l:'Raw chicken',x:18,y:24},{id:'board',i:'🔪',l:'Chopping board',x:50,y:24},{id:'salad',i:'🥗',l:'Salad bowl',x:82,y:24},{id:'tap',i:'🚰',l:'Tap handle',x:18,y:52},{id:'phone',i:'📱',l:'Phone',x:50,y:52},{id:'apron',i:'👕',l:'Apron',x:82,y:52},{id:'fridge',i:'🧊',l:'Fridge handle',x:18,y:80},{id:'dressing',i:'🧴',l:'Dressing bottle',x:50,y:80},{id:'hair',i:'💇',l:'Hair and face',x:82,y:80}],
+ steps:[
+  {title:'Amara\'s gloves have just touched raw chicken.',sit:"She has finished portioning the raw chicken. The salad still needs slicing. Her gloves look clean, and the glove box is across the room.",
+   lesson:"Gloves pick up germs from raw food just as hands do. Change them every time you move from raw food to ready-to-eat food.",
+   opts:[
+    O('best',"Remove the gloves and bin them, wash and dry your hands, put on a fresh pair, and use a clean board and knife for the salad.",3,2,1,0,[],"Gloves collect germs from raw chicken even when they look clean. Changing them, washing your hands and using clean equipment stops germs moving onto food that will not be cooked again."),
+    O('over',"Stop lunch, strip down the kitchen and clean every surface before carrying on.",3,3,3,0,[],"This is very safe, but it is far more than the situation needs. A glove change, a handwash and clean equipment solve the problem without putting lunch back by an hour."),
+    O('short',"Keep the same gloves on and slice the salad quickly, because they look clean.",0,0,0,3,['chicken','board','salad'],"You cannot see germs. Raw chicken can carry bacteria such as Campylobacter and Salmonella. The salad will not be cooked, so nothing will kill them before it reaches a resident."),
+    O('flawed',"Rinse your gloved hands under the tap and dry them on kitchen roll.",1,1,0,2,['tap','salad'],"Rinsing does not reliably remove germs from gloves. You also touch the tap handle with contaminated gloves, and wet gloves spread germs more easily.")
+   ]},
+  {title:'Amara\'s phone rings in the middle of prep.',sit:"It is the unit lead asking when lunch will be ready. The phone is on the counter beside the chopping board, and Amara's gloved hands are busy with the salad.",
+   lesson:"Phones, pens and tablets are high touch points. Wearing gloves does not make them safe to touch around food.",
+   opts:[
+    O('best',"Pause prep, remove the gloves, wash and dry your hands, take the call, then wash again and put on fresh gloves.",3,2,1,0,[],"A phone travels everywhere with its owner, including toilets and bags. Treat it as dirty. Hands and gloves both need resetting after you touch it."),
+    O('over',"Bin the salad prepared so far and start it again after the call, just in case.",3,3,3,0,[],"Binning clean food wastes stock and time. If you reset your gloves and hands properly, the salad is still safe."),
+    O('short',"Answer the phone with your gloved hand and carry on slicing.",0,0,0,3,['phone','board','salad'],"The phone is now covered in whatever was on your gloves, and your gloves now carry whatever was on the phone. Both go straight onto the salad."),
+    O('flawed',"Wipe your gloves on your apron first, then answer the phone.",1,0,0,2,['apron','phone'],"The apron already has chicken splashes. Wiping gloves on it moves germs back onto them, and then onto the phone and everything you touch next.")
+   ]},
+  {title:'The dressing is in the fridge, and the fridge handle is a high touch point.',sit:"Porters, carers and kitchen staff open that fridge all day. Amara has fresh gloves on, and her apron still has chicken splashes from earlier.",
+   lesson:"Handles that many people touch should be treated as dirty, whether or not you are wearing gloves.",
+   opts:[
+    O('best',"Open the door using a clean paper towel as a barrier, bin it, swap to a fresh apron and gloves, then dress the salad. Ask for the handle to go on the cleaning schedule.",3,2,1,0,[],"Using a barrier keeps your gloves off the handle. A fresh apron and gloves remove the splashes and anything else picked up. Cleaning the handle regularly protects the next person."),
+    O('over',"Wipe down the whole fridge and every item inside it before taking out the dressing.",3,3,3,0,[],"This is thorough but wasteful during service. A barrier and a glove change deal with the handle, and a schedule handles the rest."),
+    O('short',"Open the fridge with your gloved hand, take the dressing and carry on.",0,0,0,3,['fridge','dressing','salad'],"Your clean gloves now carry germs from every hand that touched the handle before you. They move onto the bottle and then onto the salad."),
+    O('flawed',"Use hand sanitiser on your gloves after touching the handle, then carry on.",1,1,1,2,['fridge','salad'],"Sanitiser is not a substitute for changing gloves. Grease and dirt on a glove reduce how well it works, and the glove itself can degrade, so germs remain.")
+   ]},
+  {title:'A sneeze is coming and the hairnet has slipped.',sit:"Amara has been plating salad for several minutes. Her nose tickles, and the hairnet has slid down toward her eyes.",
+   lesson:"Touching your face, nose or hair loads your gloves with germs. Step away, wash, then fit fresh gloves.",
+   opts:[
+    O('best',"Step away from the food, turn away and sneeze into a tissue, bin the tissue and gloves, wash your hands, fix the hairnet, then put on fresh gloves.",3,2,1,0,[],"Your nose, mouth and hair carry germs such as Staphylococcus aureus. Stepping away keeps droplets off the food, and washing and re-gloving resets everything you touched."),
+    O('over',"Throw away all the plated salad and ask another cook to make it again.",3,3,3,0,[],"If you stepped away before the sneeze reached the food, remaking it is not needed. This wastes food and time."),
+    O('short',"Push the hairnet back with the back of your gloved hand and carry on plating.",0,0,0,3,['hair','salad'],"Your glove has now touched hair and skin, and it goes straight back onto food that will be eaten without cooking."),
+    O('flawed',"Sneeze into your elbow and carry on plating, because your gloves never touched your face.",1,0,0,2,['apron','salad'],"This is better than sneezing over the food, but droplets can land on your sleeve and apron and drift over the plates. Step away, then wash and re-glove.")
+   ]}
+ ],
+ end:{clean:"Lunch goes out at 12:30. The curry is hot, the salad is fresh, and nobody is unwell. Amara's gloves did their job because she changed them at the right moments.",
+      near:"Lunch goes out and nobody is ill, but the kitchen lead notices some of the same habits and runs an extra clean and a refresher huddle. It was closer than it should have been.",
+      out:"By the next morning, six residents have sickness and diarrhoea. The service starts its outbreak procedure, restricts visitors and shared areas, and the trail leads back to lunch."}},
+
+/* ---------- 2. JAMAL ---------- */
+{id:'jamal',name:'Jamal',role:'Care assistant',scene:'dining',accent:'#5ec2e6',pastel:'#cfeef7',
+ skin:'#b98253',skinDk:'#a87245',hair:'short',hairC:'#15110f',beard:true,top:'#1f9d9a',outfit:'care',sleeve:'short',
+ sub:'Jamal is helping with the lunchtime meal service.',
+ intro:["It is 12:25pm. Jamal has just helped Mrs Fraser with personal care and is heading into the dining room to serve lunch.","He is wearing the blue apron and gloves from that care task and feels well protected. A call bell is ringing, and the hot trolley has just arrived. Your job is to help him serve everyone safely."],
+ facts:["Jamal has just finished personal care and is heading straight to a meal service.","The trolley handle, call bells and door handles are touched by many people every day.","Several residents need help to eat, including people who are unwell or frail."],
+ gl:['Gloves are clean','Gloves are contaminated'],uvTitle:'Where the germs travelled',uvLead:'Green means germs reached it. Blue means it stayed clean.',
+ hot:[{id:'door',i:'🚪',l:'Dining room door',x:18,y:26},{id:'bell',i:'🔔',l:'Call bell',x:50,y:26},{id:'trolley',i:'🛒',l:'Trolley handle',x:82,y:26},{id:'toast',i:'🍞',l:'Toast',x:18,y:56},{id:'plate',i:'🍽️',l:'Plates',x:50,y:56},{id:'apron',i:'👕',l:'Apron',x:82,y:56},{id:'cutlery',i:'🍴',l:'Cutlery',x:34,y:84},{id:'cup',i:'☕',l:'Tea cups',x:66,y:84}],
+ steps:[
+  {title:'Jamal is still wearing gloves from personal care.',sit:"He has just helped Mrs Fraser with continence care. Lunch is starting and the residents are waiting, so he opens the dining room door.",
+   lesson:"Gloves and aprons from personal care never go near food. Remove them, wash your hands with soap and water, then start the next task.",
+   opts:[
+    O('best',"Remove the gloves and apron in the room and bin them, wash your hands with soap and water, put on a clean apron, and only then pick up plates.",3,2,1,0,[],"Gloves used for personal care are heavily contaminated. Removing them, washing with soap and water and starting fresh keeps those germs out of the dining room."),
+    O('over',"Ask for lunch to be delayed by half an hour while you change your whole uniform and clean the unit.",3,3,3,0,[],"A glove and apron change plus a handwash is enough. A half hour delay leaves residents hungry and meals cold."),
+    O('short',"Keep the gloves on and serve lunch, because you will only be touching plates.",0,0,0,3,['door','trolley','plate'],"The gloves carry germs from personal care onto the door, the trolley and every plate. Wearing them just hides how dirty they are."),
+    O('flawed',"Squirt hand gel on the gloves outside the dining room door and carry on.",1,1,1,2,['door','plate'],"Gel on a used glove does not make it clean. Gloves from continence care should come off, and hands should be washed with soap and water.")
+   ]},
+  {title:'A call bell is ringing while Jamal is plating lunch.',sit:"Mr Hussain has pressed his call bell and the panel is flashing. Jamal has fresh gloves on and is holding a plate of toast.",
+   lesson:"Call bells are touched by many hands. Wash your hands and change gloves after touching one, before touching food again.",
+   opts:[
+    O('best',"Put the plate down on a clean surface, remove your gloves, answer the bell, wash your hands, and put on fresh gloves before going back to the food.",3,2,1,0,[],"A call bell is a high touch point. After touching it, your hands and gloves are no longer clean enough for food, so you reset both."),
+    O('over',"Close the dining room and re-wash every plate on the trolley before carrying on.",3,3,3,0,[],"The plates were never touched with dirty gloves. This wastes time and keeps hungry residents waiting."),
+    O('short',"Press the reset button with your gloved hand and carry on plating the toast.",0,0,0,3,['bell','plate','toast'],"Your gloves now carry germs from the bell, and they go straight onto the plate and the toast."),
+    O('flawed',"Press the bell with your gloved hand, then wipe the gloves on your apron before touching the toast.",1,0,0,2,['bell','apron','toast'],"The apron is not clean either. Wiping gloves on it moves germs from the bell to the apron and back to the gloves.")
+   ]},
+  {title:'Jamal needs to wheel the hot trolley between tables.',sit:"Every member of staff on every shift pushes that trolley by the same handle. Jamal has clean gloves, and after pushing it he will go back to handling bread and toast.",
+   lesson:"Trolley handles and walking frames are high touch points. Clean them regularly, and change gloves after touching them.",
+   opts:[
+    O('best',"Wipe the handle with a food-safe sanitiser wipe, push the trolley, then wash your hands and put on fresh gloves before touching any food.",3,2,0,0,[],"Cleaning the handle reduces the germs you pick up, and resetting your gloves afterwards means they are clean again for food."),
+    O('over',"Stop using the trolley and carry every plate by hand from the kitchen.",3,3,3,0,[],"This avoids the handle but means many more trips, cold food and a higher risk of drops and spills. It is too much."),
+    O('short',"Push it with the gloves you have on, then go straight back to handling bread and toast.",0,0,0,3,['trolley','toast','plate'],"The handle is covered in germs from many hands. Your gloves collect them and pass them on to the toast and plates."),
+    O('flawed',"Put a second pair of gloves over the first for extra protection.",1,2,3,2,['trolley','toast'],"Extra gloves look safer, but they do not make dirty surfaces clean. The outer pair is just as contaminated after touching the handle, and it wastes stock.")
+   ]},
+  {title:'Mrs Fraser and Mr Hussain both need help eating.',sit:"Jamal has been helping Mrs Fraser cut up her chicken. Mr Hussain at the next table needs help too. Jamal's gloves are on, and the fork he used for Mrs Fraser is on the tray.",
+   lesson:"Wash your hands, and change gloves if you use them, between one resident and the next. Each person needs their own clean cutlery.",
+   opts:[
+    O('best',"Finish with Mrs Fraser, remove your gloves, wash your hands, put on a fresh pair, and use Mr Hussain's own clean cutlery and plate.",3,2,1,0,[],"Germs from one person's food, hands and mouth can pass to the next person. A glove change, a handwash and separate cutlery break that link."),
+    O('over',"Wash and sterilise the whole tray of cutlery and re-lay every table before helping the next person.",3,3,3,0,[],"You only need clean cutlery for the next person, not for the whole room. This delays everyone's meal."),
+    O('short',"Carry on with the same gloves and the same fork, because they are eating the same meal.",0,0,0,3,['cutlery','plate'],"The fork and gloves now carry saliva and food from the first resident to the second. This matters most for people who are already unwell or frail."),
+    O('flawed',"Wipe the fork on a napkin and move on to Mr Hussain.",1,0,0,2,['cutlery','cup'],"A napkin does not make cutlery clean. Germs stay on the fork and gloves and pass to the next resident.")
+   ]}
+ ],
+ end:{clean:"Everyone is served hot food, the call bells are answered, and Jamal's gloves never carried germs from one task to the next. Mrs Fraser finishes her lunch and asks for seconds.",
+      near:"Lunch is served and nobody is ill, but the team leader spots a few habits that could have spread germs and holds a quick huddle about glove changes.",
+      out:"Over the next two days, several residents on the unit develop stomach upsets. Infection control checks trace the spread back to meals and shared touch points such as the trolley and the call bells."}},
+
+/* ---------- 3. PRIYA ---------- */
+{id:'priya',name:'Priya',role:'Night senior carer',scene:'night',accent:'#c75fd0',pastel:'#f1d4f3',
+ skin:'#c68a5a',skinDk:'#b57a4b',hair:'bun',hairC:'#17120f',top:'#2a4a8a',outfit:'night',sleeve:'long',
+ sub:'Priya is making a snack for a resident at 2am.',
+ intro:["It is 2am. Mr Reid cannot sleep and has asked for a sandwich and a hot drink. Priya is the senior on shift with one carer to help.","She has been busy all night, there are lots of things to do, and the temptation is to take shortcuts. Your job is to help her make the sandwich safely without slowing the night shift or wasting supplies."],
+ facts:["Night shifts have fewer staff, so shortcuts are tempting.","A sandwich is a ready-to-eat food. Nothing will cook away any germs it picks up.","Door keypads, kettles and handles are touched by every member of staff overnight."],
+ gl:['Gloves are clean','Gloves are contaminated'],uvTitle:'Where the germs travelled',uvLead:'Green means germs reached it. Blue means it stayed clean.',
+ hot:[{id:'keypad',i:'🔢',l:'Door keypad',x:18,y:24},{id:'glovebox',i:'🧤',l:'Glove box',x:50,y:24},{id:'bread',i:'🍞',l:'Bread',x:82,y:24},{id:'sandwich',i:'🥪',l:'Sandwich',x:18,y:52},{id:'pocket',i:'👖',l:'Tunic pocket',x:50,y:52},{id:'phone',i:'📱',l:'Phone and keys',x:82,y:52},{id:'kettle',i:'☕',l:'Kettle handle',x:18,y:80},{id:'doorh',i:'🚪',l:'Resident door handle',x:50,y:80},{id:'tray',i:'🍽️',l:'Tray',x:82,y:80}],
+ steps:[
+  {title:'Priya reaches the kitchenette with unwashed hands.',sit:"She has not washed her hands since her last round. A colleague says it is quicker to put gloves on, because the gloves will protect the food.",
+   lesson:"Gloves do not clean your hands. Wash first, dry well, then put on gloves.",
+   opts:[
+    O('best',"Wash your hands with soap and water for at least 20 seconds, dry them well, then put on fresh gloves.",3,2,1,0,[],"Gloves only protect food if they go on over clean, dry hands. Soap, water and good drying remove germs that gel and gloves cannot."),
+    O('over',"Scrub your hands with a nail brush and gel, then put on two pairs of gloves.",3,3,3,0,[],"This is more than needed. A proper wash and one pair of fresh gloves does the job, and double gloving wastes stock."),
+    O('short',"Put the gloves on straight away over your unwashed hands.",0,0,0,3,['glovebox','bread','sandwich'],"Germs on your hands go straight onto the glove box, the gloves and the bread. Warm, damp hands inside gloves can let germs multiply."),
+    O('flawed',"Use alcohol gel and put on gloves while your hands are still wet.",1,1,1,2,['glovebox','sandwich'],"Gel is not a substitute for washing hands that have been in contact with a resident. Gloves also go on badly over wet hands and tear more easily.")
+   ]},
+  {title:'Priya keeps spare gloves in her tunic pocket.',sit:"To save time on nights, she keeps a few pairs in her pocket along with her phone and keys. She grabs a pair to make the sandwich.",
+   lesson:"Keep gloves in a clean dispenser, never in a pocket.",
+   opts:[
+    O('best',"Take a fresh pair from the dispenser or a clean box, and stop keeping gloves in your pocket.",3,1,1,0,[],"A pocket is not a clean place. Gloves from a sealed box or dispenser have not touched your phone, keys or clothing."),
+    O('over',"Throw away the whole box of gloves and wait for a new delivery before doing anything else.",3,3,3,0,[],"The box in the dispenser is fine. This stops the night shift and wastes a lot of stock."),
+    O('short',"Pull on the pair from your pocket and make the sandwich.",0,0,0,3,['pocket','phone','sandwich'],"Those gloves have sat next to a phone and keys. They are already contaminated before they touch any food."),
+    O('flawed',"Wipe the pocket gloves with a sanitiser wipe, then put them on.",1,1,1,2,['pocket','sandwich'],"Wipes are not made for single-use gloves and can damage them. Fresh gloves from a clean dispenser are the safe choice.")
+   ]},
+  {title:'Priya realises she has had the same gloves on for a long time.',sit:"She has worn the same pair since a pad change at 1:40am, then did the kettle, the fridge and the bread. They are not torn, so they feel fine.",
+   lesson:"Change gloves between tasks, and never wear one pair through a whole shift. Tiny holes and sweat make long wear risky.",
+   opts:[
+    O('best',"Remove the gloves, wash your hands, and put on a new pair for the sandwich. Bin them when the task is done.",3,2,1,0,[],"Gloves are for one task. Germs from the earlier jobs, tiny holes and sweat all build up the longer they stay on."),
+    O('over',"Change your gloves every minute during the task and wash your hands each time.",3,3,3,0,[],"Over-changing wastes gloves and time. Change them at the right moments, not constantly."),
+    O('short',"Keep the same gloves on until the end of the shift, because they are not torn.",0,0,0,3,['keypad','kettle','sandwich'],"Undamaged does not mean clean. The gloves have touched a keypad, a kettle and who knows what else, and they now carry that onto the sandwich."),
+    O('flawed',"Only change them if they look dirty.",1,0,0,2,['kettle','sandwich'],"Most germs are invisible. Dirty-looking gloves are not the only dirty gloves.")
+   ]},
+  {title:'Priya carries the sandwich to Mr Reid\'s room.',sit:"The door is closed, and the handle is touched by many people through the night. Priya holds the plate with clean gloves.",
+   lesson:"Plan the route so food gloves never touch a handle. Open doors first, then wash and handle the food.",
+   opts:[
+    O('best',"Put the plate on a clean tray, open the door using a clean paper towel as a barrier, bin it, and hand over the sandwich.",3,2,1,0,[],"A paper towel keeps your gloves off the handle. A tray means you can keep both hands off the food."),
+    O('over',"Sanitise the whole corridor before delivering the sandwich.",3,3,3,0,[],"Cleaning the corridor is not needed to deliver one sandwich. It wastes time and stock."),
+    O('short',"Open the door with your gloved hand while holding the plate.",0,0,0,3,['doorh','sandwich','tray'],"The handle is covered in germs from many hands. They now pass onto your glove and then the plate and sandwich."),
+    O('flawed',"Open the door with your elbow and carry on.",1,0,0,2,['doorh','tray'],"This is better than using a glove, but your sleeve picks up germs from the handle and touches the plate and your gloves as you carry it.")
+   ]}
+ ],
+ end:{clean:"Mr Reid enjoys his sandwich and a hot drink, settles back to sleep, and the night shift ends with no sickness reported.",
+      near:"Mr Reid is fine, but the morning shift finds spare gloves in a pocket and sees a few habits worth a chat. It was a near miss.",
+      out:"Two residents become unwell over the next day. The home investigates and finds that night-time food handling and shared touch points could have spread germs."}},
+
+/* ---------- 4. FUNMI ---------- */
+{id:'funmi',name:'Helen',role:'Registered manager',scene:'manager',accent:'#35c48f',pastel:'#cdf3e3',
+ skin:'#5b3a24',skinDk:'#4d2f1c',hair:'wrap',hairC:'#f59e0b',top:'#6d4bd8',outfit:'manager',sleeve:'long',bare:true,
+ sub:'Helen is doing a food safety walk-round.',
+ intro:["Helen is the registered manager. After some complaints about stomach upsets, she has been told that staff may rely too heavily on gloves.","She has a small training budget and a busy week ahead. Her job is to find the biggest risks and decide what to do about them without disrupting residents' meals."],
+ facts:["Staff say gloves make them feel safe, but nobody is checking how they are used.","Several high touch points are only cleaned once a week.","The training budget is small, so every choice has a cost."],
+ gl:['Systems are strong','Systems have gaps'],uvTitle:'Where risks were left open',uvLead:'Green means a risk is still open. Blue means you dealt with it.',
+ hot:[{id:'dispenser',i:'🧤',l:'Glove station',x:18,y:26},{id:'sink',i:'🧼',l:'Handwash sink',x:50,y:26},{id:'handles',i:'🚪',l:'Door and fridge handles',x:82,y:26},{id:'bells',i:'🔔',l:'Call bells',x:18,y:56},{id:'trolley',i:'🛒',l:'Trolley handles',x:50,y:56},{id:'wipes',i:'🧴',l:'Cleaning products',x:82,y:56},{id:'training',i:'👥',l:'Staff habits',x:34,y:84},{id:'sickness',i:'🤒',l:'Sickness rules',x:66,y:84}],
+ steps:[
+  {title:'The glove box is on the worktop next to the raw meat board, and the sink is blocked.',sit:"During the walk-round Helen sees that the only handwash sink is piled with trays, and the glove box sits beside the raw meat chopping board.",
+   lesson:"Gloves only work when the basics are in place: an accessible handwash sink and a clean place to store gloves.",
+   opts:[
+    O('best',"Move the glove dispenser to a clean spot away from raw food, clear the sink so it is always usable, and add both to a daily check.",3,2,1,0,[],"People need to wash before they glove. A clear sink and a clean glove station make the safe routine the easy one."),
+    O('over',"Close the kitchen until a full refit is finished.",3,3,3,0,[],"The problem can be fixed in minutes. Closing the kitchen would stop meals and cost far more than the issue is worth."),
+    O('short',"Leave things as they are, because staff know where things go.",0,0,0,3,['dispenser','sink'],"A blocked sink pushes people to rely on gloves alone, and a glove box next to raw meat can get contaminated before anyone uses it."),
+    O('flawed',"Buy more glove boxes and put them in every room so staff always have gloves.",1,1,2,2,['sink','training'],"More gloves with no way to wash hands reinforces the false sense of security. People wear gloves instead of washing.")
+   ]},
+  {title:'Staff tell Helen they wear gloves all shift because it feels safer.',sit:"They are not doing anything on purpose. It simply feels safer to keep gloves on, and nobody has shown them how gloves get contaminated.",
+   lesson:"Teach people how gloves become contaminated. Rules without reasons create a false sense of security.",
+   opts:[
+    O('best',"Run a short, practical huddle with a glow-gel or touch-trail demonstration, and agree a simple routine: wash, glove, do the task, bin the gloves, wash.",3,2,1,0,[],"Seeing germs spread on gloved hands changes habits far more than being told. A short, practical session fits into a normal shift."),
+    O('over',"Send every member of staff on a full external course this week.",3,3,3,0,[],"Formal courses help, but this is a large cost and removes staff from the floor when a short session would do."),
+    O('short',"Email everyone a reminder to read the policy.",1,0,0,3,['training'],"Most people will not read it, and the false sense of security stays. A reminder with no practice rarely changes habits."),
+    O('flawed',"Tell staff that gloves must be worn at all times when near food.",1,1,1,2,['training','dispenser'],"A rule to wear gloves all the time without clear change points makes the false sense of security worse.")
+   ]},
+  {title:'The handles, keypads and call bells are only cleaned once a week.',sit:"Helen notices that the door handles, fridge handles, keypad, call bells and trolley handles are all on the weekly deep clean, and nowhere else.",
+   lesson:"Clean high touch points often and properly, using a food-safe product and the right contact time.",
+   opts:[
+    O('best',"Create a touch-point cleaning schedule with a food-safe sanitiser, give it to named roles on each shift, and sign it off.",3,2,1,0,[],"Regular cleaning keeps the germ load on high touch points low. Named roles and a sign-off mean it actually happens."),
+    O('over',"Replace every handle and call bell with a no-touch fitting this week.",3,3,3,0,[],"No-touch fittings help, but replacing everything this week is a very large cost when a schedule already makes a big difference."),
+    O('short',"Keep the weekly deep clean, because it is enough.",0,0,0,3,['handles','bells','trolley'],"A weekly clean leaves handles dirty for six days. Gloves pick up germs from them within minutes."),
+    O('flawed',"Spray disinfectant around the kitchen at the end of the shift and wipe it off straight away.",1,1,1,2,['handles','wipes'],"Disinfectant needs time on a clean surface to work. Spraying and wiping it off straight away does not kill germs and can smear them around.")
+   ]},
+  {title:'A cook says she had vomiting yesterday but feels fine and wants to cook lunch.',sit:"She has told Helen honestly and says she will wear gloves and wash her hands a lot. Lunch is in three hours and the kitchen is short staffed.",
+   lesson:"Staff with sickness or diarrhoea stay away from food until 48 hours after their last symptoms. Gloves do not change that.",
+   opts:[
+    O('best',"Thank her for telling you, keep her away from food handling until 48 hours after her last symptoms, and arrange cover.",3,2,2,0,[],"Someone who has been ill can still spread illness even if they feel better. Gloves and handwashing do not make up for this."),
+    O('over',"Send the whole kitchen team home for a week.",3,3,3,0,[],"Only the person who has been ill needs to stay away. Sending everyone home puts residents' meals at risk."),
+    O('short',"Let her work if she wears gloves and washes her hands often.",0,0,0,3,['sickness','training'],"Gloves do not stop an infectious person spreading illness. This is exactly how outbreaks start."),
+    O('flawed',"Let her prepare cold desserts only, because they do not need cooking.",1,1,1,2,['sickness'],"Cold and ready-to-eat foods are the riskiest, because nothing kills germs afterwards. She should stay away from all food handling.")
+   ]}
+ ],
+ end:{clean:"Staff understand that gloves are only one layer of protection. Touch points are cleaned regularly, sick staff stay away from food, and the next audit is clean.",
+      near:"Some improvements are made, but gaps remain. The next audit finds the same habits, and Helen has to follow up with a tougher plan.",
+      out:"Illness spreads through the unit. The service has to start its outbreak procedure, notify the right agencies, and explain what happened to families and inspectors."}}
+];
+
+var SAFE_TXT=['Leaves a clear route for germs to spread.','Lowers the risk a little, but gaps remain.','Lowers the risk well, with one small gap.','Breaks the route germs would have taken.'];
+var TIME_TXT=['Takes almost no extra time.','Adds under a minute.','Adds a couple of minutes.','Takes a big chunk of the shift.'];
+var COST_TXT=['Costs nothing extra.','Uses a little stock, such as gloves or wipes.','Uses a noticeable amount of stock or staff time.','Wastes food, stock or staff hours.'];
+
+var GLOSS=[
+ ['Cross-contamination','When germs move from one place to another, for example from raw chicken to a salad.'],
+ ['Ready-to-eat food','Food that will be eaten without further cooking, such as salad, sandwiches, desserts and cooked meats.'],
+ ['High touch point','A surface that many people touch, such as a door handle, fridge handle, keypad, call bell, trolley handle or phone.'],
+ ['Hand hygiene','Washing hands thoroughly with soap and water and drying them well, including after taking gloves off.'],
+ ['Single-use gloves','Disposable gloves used for one task and then thrown away. They are not a replacement for washing hands.'],
+ ['Personal care','Tasks such as washing, dressing and continence care. Gloves and aprons used for these must never be worn near food.'],
+ ['Barrier','Something such as a clean paper towel placed between your hand and a surface so that you do not touch it directly.'],
+ ['Contact time','How long a cleaning or disinfectant product must stay wet on a clean surface before it works properly.'],
+ ['Norovirus','A very infectious stomach bug that causes vomiting and diarrhoea. Alcohol gel does not reliably kill it, so wash with soap and water.'],
+ ['Outbreak','Two or more people linked by the same illness in a service. It triggers an outbreak procedure and reporting.']
+];
+
+var RULES=['Wash your hands with soap and water before you put gloves on.','Use fresh gloves for each task, and bin them when the task is finished.','Change gloves after touching raw food, bins, phones, handles, your face or your hair.','Treat high touch points as dirty: handles, keypads, call bells, trolleys, pens and phones.','Wash your hands again after you take your gloves off.'];
+
+/* ================= ARTWORK ================= */
+var GERMS='<g class="germs"><circle class="gm" cx="-8" cy="-14" r="3.2"/><circle class="gm" style="animation-delay:.5s" cx="6" cy="-8" r="2.6"/><circle class="gm" style="animation-delay:1s" cx="0" cy="6" r="3.4"/><circle class="gm" style="animation-delay:1.5s" cx="10" cy="12" r="2.4"/><circle class="gm" style="animation-delay:.8s" cx="-10" cy="10" r="2.4"/></g>';
+var MIT='M-14,-4 Q-15,-22 0,-22 Q15,-22 14,-4 L14,10 Q14,22 0,22 Q-14,22 -14,10Z';
+function mitten(x,y,flip){
+  return '<g transform="translate('+x+' '+y+') scale('+(flip?-1:1)+' 1)">'+
+   '<ellipse cx="-15" cy="3" rx="5.5" ry="10" transform="rotate(22 -15 3)" fill="#46c2ff" stroke="#1b8fcb" stroke-width="2"/>'+
+   '<path d="'+MIT+'" fill="#46c2ff" stroke="#1b8fcb" stroke-width="2"/>'+
+   '<path d="M-5,-19 V-5 M4,-20 V-5" stroke="#1b8fcb" stroke-width="1.5" opacity=".55"/>'+
+   '<path d="M-9,-13 Q-9,-19 -3,-19" stroke="#fff" stroke-width="2.6" fill="none" opacity=".65" stroke-linecap="round"/>'+
+   '<rect x="-15" y="13" width="30" height="9" rx="3" fill="#2aa5e6" stroke="#1b8fcb" stroke-width="1.6"/>'+
+   '<path class="gtint" d="'+MIT+'" fill="#7dff6a"/>'+GERMS+'</g>';
+}
+function bareHand(x,y,sk,flip){return '<g transform="translate('+x+' '+y+') scale('+(flip?-1:1)+' 1)"><ellipse cx="-12" cy="2" rx="4.5" ry="8" transform="rotate(22 -12 2)" fill="'+sk+'"/><path d="'+MIT+'" fill="'+sk+'"/></g>'}
+
+function figure(ch){
+  var o='',sk=ch.skin,dk=ch.skinDk;
+  if(ch.hair==='afro')o+='<circle cx="0" cy="-12" r="47" fill="'+ch.hairC+'"/>';
+  if(ch.hair==='bun')o+='<circle cx="0" cy="-52" r="15" fill="'+ch.hairC+'"/>';
+  o+='<rect x="-58" y="50" width="116" height="150" rx="28" fill="'+ch.top+'"/>';
+  o+='<rect x="-11" y="26" width="22" height="34" rx="8" fill="'+dk+'"/>';
+  if(ch.outfit==='chef'){
+    o+='<path d="M-14,52 L0,72 L14,52Z" fill="'+dk+'"/><path d="M-16,50 L0,74 L16,50" stroke="#d6d6e0" stroke-width="3" fill="none"/>';
+    o+='<path d="M-32,70 L32,70 L38,200 L-38,200Z" fill="#2f6fb2"/><path d="M-20,54 L-30,70 M20,54 L30,70" stroke="#2f6fb2" stroke-width="5" stroke-linecap="round"/>';
+    o+='<ellipse cx="-14" cy="110" rx="7" ry="4" fill="#e58b8b" opacity=".75"/><ellipse cx="10" cy="128" rx="9" ry="5" fill="#e58b8b" opacity=".7"/><circle cx="-4" cy="148" r="3" fill="#e58b8b" opacity=".7"/>';
+  }else if(ch.outfit==='care'){
+    o+='<path d="M-16,52 L0,68 L16,52Z" fill="'+dk+'"/>';
+    o+='<path d="M-36,64 L36,64 L42,200 L-42,200Z" fill="#aee0ff" opacity=".85" stroke="#7cc4f0" stroke-width="2"/><path d="M-20,54 L-32,64 M20,54 L32,64" stroke="#7cc4f0" stroke-width="3"/>';
+    o+='<rect x="12" y="84" width="18" height="12" rx="2" fill="#fff"/><rect x="15" y="88" width="12" height="2" fill="#9ab"/>';
+  }else if(ch.outfit==='night'){
+    o+='<path d="M-20,50 L0,80 L20,50Z" fill="'+dk+'"/><path d="M-22,50 L0,82 L22,50" stroke="#fff" stroke-width="3" fill="none"/>';
+    o+='<path d="M-16,52 L0,112 L16,52" stroke="#ffc857" stroke-width="3" fill="none"/><rect x="-11" y="110" width="22" height="28" rx="3" fill="#fff"/><circle cx="0" cy="120" r="5" fill="#c9b3a0"/><rect x="-7" y="128" width="14" height="3" fill="#99a"/>';
+  }else{
+    o+='<path d="M-16,50 L0,94 L16,50Z" fill="#fff"/>';
+    o+='<path d="M-20,48 L-2,100 L-42,120 L-52,66Z" fill="#5636b8"/><path d="M20,48 L2,100 L42,120 L52,66Z" fill="#5636b8"/>';
+    o+='<path d="M-14,52 L0,118 L14,52" stroke="#35c48f" stroke-width="3" fill="none"/><rect x="-10" y="114" width="20" height="26" rx="3" fill="#fff"/><circle cx="0" cy="124" r="5" fill="#b9a089"/>';
+  }
+  o+='<circle cx="-33" cy="4" r="7" fill="'+sk+'"/><circle cx="33" cy="4" r="7" fill="'+sk+'"/><ellipse cx="0" cy="0" rx="33" ry="37" fill="'+sk+'"/>';
+  if(ch.hair==='afro'){
+    o+='<path d="M-33,-6 Q-30,-50 0,-52 Q30,-50 33,-6 Q20,-28 0,-28 Q-20,-28 -33,-6Z" fill="'+ch.hairC+'"/>';
+    if(ch.outfit==='chef')o+='<path d="M-42,-12 Q0,-70 42,-12 Q46,6 36,10 L-36,10 Q-46,6 -42,-12Z" fill="#fff" fill-opacity=".22" stroke="#fff" stroke-opacity=".55" stroke-width="1.5"/>';
+    if(ch.outfit==='chef')o+='<path d="M-30,-30 L30,10 M-10,-40 L40,0 M10,-44 L44,-14 M30,-30 L-30,10 M10,-40 L-40,0 M-10,-44 L-44,-14" stroke="#fff" stroke-opacity=".3"/>';
+  }else if(ch.hair==='short'){
+    o+='<path d="M-34,-4 Q-38,-46 0,-46 Q38,-46 34,-4 Q26,-28 0,-28 Q-26,-28 -34,-4Z" fill="'+ch.hairC+'"/>';
+  }else if(ch.hair==='bun'){
+    o+='<path d="M-34,-2 Q-38,-48 0,-48 Q38,-48 34,-2 Q24,-30 6,-30 Q-18,-28 -34,-2Z" fill="'+ch.hairC+'"/>';
+  }else{
+    o+='<path d="M-38,-2 Q-46,-50 0,-54 Q46,-50 38,-2 Q22,-26 0,-26 Q-22,-26 -38,-2Z" fill="#f59e0b"/><path d="M-26,-46 Q-4,-86 34,-48 Q8,-60 -26,-46Z" fill="#fbbf24"/><path d="M-30,-30 Q0,-44 30,-30" stroke="#d97706" stroke-width="3" fill="none"/>';
+  }
+  var mc='#2a1a14';
+  if(ch.beard){o+='<path d="M-31,6 Q-33,44 0,46 Q33,44 31,6 Q22,28 0,26 Q-22,28 -31,6Z" fill="#15110f"/>';mc='#f2c3b8'}
+  o+='<ellipse cx="-12" cy="-3" rx="6.5" ry="7.5" fill="#fff"/><ellipse cx="12" cy="-3" rx="6.5" ry="7.5" fill="#fff"/><g class="germ-eyes" style="transform-box:fill-box;transform-origin:center"><circle cx="-11" cy="-2" r="3.6" fill="#2a1a14"/><circle cx="13" cy="-2" r="3.6" fill="#2a1a14"/></g><circle cx="-10" cy="-3.4" r="1.2" fill="#fff"/><circle cx="14" cy="-3.4" r="1.2" fill="#fff"/>';
+  o+='<path d="M-19,-14 Q-12,-18 -5,-14 M5,-14 Q12,-18 19,-14" stroke="#2a1a14" stroke-width="3" fill="none" stroke-linecap="round"/>';
+  o+='<path d="M-2,6 Q0,10 3,7" stroke="'+dk+'" stroke-width="2.4" fill="none" stroke-linecap="round"/>';
+  o+='<circle cx="-21" cy="12" r="6" fill="#ff8a7a" opacity=".22"/><circle cx="21" cy="12" r="6" fill="#ff8a7a" opacity=".22"/>';
+  o+='<path class="m-ok" d="M-11,18 Q0,28 11,18" stroke="'+mc+'" stroke-width="3" fill="none" stroke-linecap="round"/>';
+  o+='<path class="m-bad" d="M-10,24 Q0,15 10,24" stroke="'+mc+'" stroke-width="3" fill="none" stroke-linecap="round"/>';
+  o+='<path class="sweat" d="M44,-22 q7,12 0,17 q-7,-5 0,-17z" fill="#8ee0ff"/>';
+  var fore=(ch.sleeve==='short')?sk:ch.top;
+  o+='<path d="M-52,72 L-90,118" stroke="'+ch.top+'" stroke-width="32" stroke-linecap="round"/><path d="M-90,118 L-76,150" stroke="'+fore+'" stroke-width="26" stroke-linecap="round"/>';
+  o+='<path d="M52,72 L90,118" stroke="'+ch.top+'" stroke-width="32" stroke-linecap="round"/><path d="M90,118 L76,150" stroke="'+fore+'" stroke-width="26" stroke-linecap="round"/>';
+  var hands=ch.bare?bareHand(-76,160,sk,false)+bareHand(76,160,sk,true):mitten(-76,160,false)+mitten(76,160,true);
+  return {body:o,hands:hands};
+}
+
+/* ---- scenes ---- */
+var SC={};
+SC.kitchen=function(){
+  var defs='<pattern id="tile" width="40" height="30" patternUnits="userSpaceOnUse"><rect width="40" height="30" fill="#e8f2f6"/><path d="M0 0H40M0 0V30" stroke="#c9dbe3" stroke-width="2"/></pattern>';
+  var back='<rect width="480" height="262" fill="url(#tile)"/>'+
+   '<rect x="150" y="26" width="110" height="84" rx="6" fill="#bfe8ff"/><circle class="sunr" cx="182" cy="52" r="12" fill="#ffd166"/><path d="M205 26V110M150 68H260" stroke="#fff" stroke-width="4"/><rect x="150" y="26" width="110" height="84" rx="6" fill="none" stroke="#fff" stroke-width="6"/>'+
+   '<path d="M340 0H470L452 48H358Z" fill="#b6c1ca"/><rect x="356" y="48" width="96" height="8" fill="#98a4ae"/>'+
+   '<rect x="296" y="100" width="160" height="6" rx="2" fill="#a98b6b"/><rect x="306" y="76" width="34" height="24" rx="4" fill="#c0392b"/><rect x="356" y="80" width="30" height="20" rx="4" fill="#7f8c8d"/><rect x="404" y="70" width="32" height="30" rx="4" fill="#2c3e50"/>'+
+   '<path d="M300 0V28M322 0V40M344 0V22" stroke="#8a97a1" stroke-width="3"/><ellipse cx="322" cy="46" rx="8" ry="6" fill="#8a97a1"/>'+
+   '<rect x="0" y="96" width="70" height="170" rx="6" fill="#d5dde3"/><rect x="0" y="96" width="70" height="170" rx="6" fill="none" stroke="#aab6bf" stroke-width="3"/><rect x="0" y="150" width="70" height="3" fill="#aab6bf"/><rect x="56" y="112" width="6" height="30" rx="3" fill="#6b7885"/><rect x="56" y="166" width="6" height="48" rx="3" fill="#6b7885"/>'+
+   '<g fill="#fff" opacity=".7"><ellipse cx="50" cy="184" rx="3.5" ry="5"/><ellipse cx="46" cy="198" rx="3" ry="4.5"/><ellipse cx="52" cy="126" rx="3" ry="4.5"/></g>'+
+   '<rect x="396" y="212" width="58" height="50" rx="6" fill="#7f8c8d"/><rect x="392" y="206" width="66" height="8" rx="4" fill="#98a4ae"/>'+
+   '<g fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"><path class="steam" d="M412 200 q-6 -10 0 -18"/><path class="steam s2" d="M426 200 q6 -10 0 -18"/><path class="steam s3" d="M440 200 q-6 -10 0 -18"/></g>';
+  var front='<rect y="262" width="480" height="98" fill="#8b98a3"/><rect y="262" width="480" height="12" fill="#d3dbe1"/><path d="M120 274V360M240 274V360M360 274V360" stroke="#7a8691" stroke-width="3"/>'+
+   '<rect x="40" y="250" width="116" height="14" rx="4" fill="#cfd6dc"/><ellipse cx="72" cy="246" rx="22" ry="9" fill="#f4a0a0"/><ellipse cx="116" cy="246" rx="22" ry="9" fill="#f48f8f"/><circle cx="52" cy="243" r="4" fill="#fbe3d3"/><circle cx="138" cy="243" r="4" fill="#fbe3d3"/>'+
+   '<rect x="180" y="252" width="180" height="12" rx="4" fill="#f4efe3"/><circle cx="214" cy="248" r="6" fill="#e5483d"/><circle cx="232" cy="249" r="5" fill="#e5483d"/><path d="M300 250 L338 244" stroke="#9aa5ae" stroke-width="5" stroke-linecap="round"/>'+
+   '<path d="M388 244 h70 q-5 24 -35 24 q-30 0 -35 -24z" fill="#fff" stroke="#dfe6ea" stroke-width="2"/><g fill="#52b788"><ellipse cx="404" cy="240" rx="12" ry="8"/><ellipse cx="424" cy="236" rx="14" ry="9"/><ellipse cx="444" cy="241" rx="11" ry="8"/></g><circle cx="430" cy="238" r="5" fill="#e5483d"/>'+
+   '<rect x="160" y="236" width="18" height="28" rx="4" fill="#212433"/><rect x="163" y="240" width="12" height="18" rx="2" fill="#6ac0ff" class="twk"/>';
+  return {defs:defs,back:back,front:front,lx:194,rx:346};
+};
+SC.dining=function(){
+  var defs='';
+  var back='<rect width="480" height="262" fill="#f3e2c8"/><rect y="170" width="480" height="92" fill="#d9b88f"/><rect y="166" width="480" height="6" fill="#b88f63"/>'+
+   '<rect x="350" y="30" width="100" height="94" rx="4" fill="#cdeefc"/><circle class="sunr" cx="380" cy="56" r="11" fill="#ffd166"/><path d="M400 30V124M350 77H450" stroke="#fff" stroke-width="4"/><rect x="350" y="30" width="100" height="94" rx="4" fill="none" stroke="#fff" stroke-width="5"/>'+
+   '<path d="M338 26 Q362 80 346 130 H372 Q382 80 376 26Z" fill="#d9534f"/><path d="M462 26 Q438 80 454 130 H428 Q418 80 424 26Z" fill="#d9534f"/>'+
+   '<rect x="40" y="40" width="68" height="50" fill="#fff" stroke="#8a6b4a" stroke-width="5"/><path d="M45 85 Q65 55 85 72 Q95 62 103 80 V86 H45Z" fill="#7bc47f"/><circle cx="90" cy="54" r="7" fill="#ffd166"/>'+
+   '<path d="M170 0V22" stroke="#8a6b4a" stroke-width="3"/><path d="M150 22 H190 L200 44 H140Z" fill="#f4a83a"/><ellipse cx="170" cy="46" rx="40" ry="8" fill="#ffe7a8" opacity=".5"/>'+
+   '<rect x="206" y="92" width="52" height="28" rx="5" fill="#fff" stroke="#bbb" stroke-width="2"/><circle class="blinkr" cx="232" cy="106" r="8" fill="#e5483d"/>'+
+   '<rect x="10" y="214" width="150" height="50" rx="6" fill="#fff"/><rect x="10" y="260" width="150" height="4" fill="#e1d7c3"/><ellipse cx="50" cy="216" rx="20" ry="5" fill="#f0f0f0" stroke="#d8d8d8"/><ellipse cx="50" cy="214" rx="12" ry="3" fill="#f4c27a"/>'+
+   '<rect x="46" y="170" width="80" height="52" rx="24" fill="#9b7bd1"/><circle cx="86" cy="150" r="22" fill="#e9bf97"/><path d="M64 148 Q64 126 86 126 Q108 126 108 148 Q100 136 86 136 Q72 136 64 148Z" fill="#e6e6ec"/><circle cx="78" cy="150" r="4" fill="none" stroke="#6b4f3a" stroke-width="2"/><circle cx="94" cy="150" r="4" fill="none" stroke="#6b4f3a" stroke-width="2"/><path d="M78 160 Q86 167 94 160" stroke="#8a4b3a" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
+  var front='<rect x="150" y="262" width="330" height="14" fill="#cfd8de"/><rect x="160" y="276" width="310" height="84" fill="#9aa8b2"/><path d="M160 300H470" stroke="#8795a0" stroke-width="3"/><rect x="452" y="222" width="8" height="54" rx="4" fill="#6b7885"/><rect x="440" y="222" width="24" height="8" rx="4" fill="#6b7885"/>'+
+   '<ellipse cx="190" cy="258" rx="26" ry="6" fill="#fff" stroke="#cfd8de"/><ellipse cx="190" cy="253" rx="26" ry="6" fill="#fff" stroke="#cfd8de"/><ellipse cx="190" cy="248" rx="26" ry="6" fill="#fff" stroke="#cfd8de"/>'+
+   '<rect x="384" y="238" width="26" height="24" rx="3" fill="#d8ac6e"/><path d="M388 238 L388 250 M397 238 L397 250 M406 238 L406 250" stroke="#f3dca8" stroke-width="3"/><rect x="420" y="246" width="20" height="16" rx="3" fill="#fff" stroke="#cfd8de"/><path d="M440 250 q8 0 0 8" stroke="#cfd8de" stroke-width="2.5" fill="none"/><rect x="170" y="268" width="0" height="0"/>';
+  return {defs:defs,back:back,front:front,lx:194,rx:346};
+};
+SC.night=function(){
+  var defs='<radialGradient id="warm" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffcf70" stop-opacity=".55"/><stop offset="1" stop-color="#ffcf70" stop-opacity="0"/></radialGradient>';
+  var back='<rect width="480" height="262" fill="#2b2a55"/><ellipse cx="410" cy="150" rx="150" ry="120" fill="url(#warm)"/>'+
+   '<rect x="40" y="30" width="110" height="90" rx="4" fill="#0b1433"/><circle cx="110" cy="62" r="14" fill="#f5f0c8"/><circle cx="104" cy="58" r="12" fill="#0b1433"/><g fill="#fff"><circle class="twk" cx="64" cy="52" r="2"/><circle class="twk" style="animation-delay:.9s" cx="84" cy="92" r="2"/><circle class="twk" style="animation-delay:1.5s" cx="132" cy="96" r="1.6"/><circle class="twk" style="animation-delay:.4s" cx="68" cy="78" r="1.4"/></g><path d="M95 30V120M40 75H150" stroke="#6f6aa8" stroke-width="4"/><rect x="40" y="30" width="110" height="90" rx="4" fill="none" stroke="#6f6aa8" stroke-width="5"/>'+
+   '<circle cx="240" cy="44" r="22" fill="#f6f4ff" stroke="#6f6aa8" stroke-width="4"/><path d="M240 44 L240 28 M240 44 L249 39" stroke="#1b1738" stroke-width="3" stroke-linecap="round"/><circle cx="240" cy="44" r="2.5" fill="#e5483d"/>'+
+   '<rect x="380" y="36" width="82" height="42" rx="6" fill="#0f0e24" stroke="#6f6aa8" stroke-width="2"/><text class="blinkr" x="421" y="63" text-anchor="middle" fill="#ff5d73" font-family="Plus Jakarta Sans,sans-serif" font-weight="800" font-size="15">ROOM 4</text>'+
+   '<rect x="0" y="120" width="58" height="142" fill="#3d3b73"/><rect x="40" y="168" width="14" height="24" rx="2" fill="#0f0e24"/><g fill="#7dff6a"><circle cx="44" cy="174" r="1.6"/><circle cx="50" cy="174" r="1.6"/><circle cx="44" cy="180" r="1.6"/><circle cx="50" cy="180" r="1.6"/><circle cx="44" cy="186" r="1.6"/><circle cx="50" cy="186" r="1.6"/></g><rect x="38" y="200" width="14" height="5" rx="2" fill="#9fa0d0"/>';
+  var front='<rect y="262" width="480" height="98" fill="#4a3b6b"/><rect y="262" width="480" height="12" fill="#7a67a6"/><path d="M120 274V360M240 274V360M360 274V360" stroke="#3c2f58" stroke-width="3"/>'+
+   '<path d="M76 262 L82 224 H122 L128 262Z" fill="#cfd6e8"/><rect x="82" y="214" width="40" height="10" rx="4" fill="#9aa5c4"/><path d="M128 238 q16 0 14 14" stroke="#9aa5c4" stroke-width="5" fill="none"/><circle cx="102" cy="244" r="4" fill="#ff8a7a"/>'+
+   '<ellipse cx="418" cy="260" rx="46" ry="8" fill="#e9edf5"/><path d="M386 256 L412 232 L440 256Z" fill="#e6c48f"/><path d="M392 254 L412 238 L432 254Z" fill="#f48f8f"/><path d="M398 256 L420 236 L450 256Z" fill="#d8ac6e" opacity=".9"/><ellipse cx="418" cy="248" rx="44" ry="14" fill="#fff" opacity=".18"/>'+
+   '<rect x="160" y="240" width="24" height="22" rx="4" fill="#f6f4ff"/><path d="M184 246 q10 0 0 10" stroke="#f6f4ff" stroke-width="3.5" fill="none"/><g fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path class="steam" d="M168 232 q-4 -8 0 -14"/><path class="steam s2" d="M176 232 q4 -8 0 -14"/></g>';
+  return {defs:defs,back:back,front:front,lx:194,rx:346};
+};
+SC.manager=function(){
+  var defs='';
+  var back='<rect width="480" height="262" fill="#e3f1e7"/><rect y="170" width="480" height="92" fill="#cfe5d6"/><rect y="166" width="480" height="5" fill="#9fc5ae"/>'+
+   '<rect x="44" y="34" width="84" height="108" fill="#fff" stroke="#3a7f5c" stroke-width="4"/><text x="86" y="62" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-weight="800" font-size="13" fill="#3a7f5c">WASH</text><text x="86" y="78" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-weight="800" font-size="13" fill="#3a7f5c">HANDS</text><g fill="#46c2ff"><circle cx="68" cy="102" r="9"/><circle cx="86" cy="96" r="9"/><circle cx="104" cy="102" r="9"/><rect x="62" y="104" width="48" height="22" rx="8"/></g>'+
+   '<rect x="150" y="96" width="82" height="46" rx="6" fill="#2aa5e6"/><rect x="156" y="104" width="70" height="8" rx="3" fill="#1b8fcb"/><text x="191" y="132" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-weight="800" font-size="13" fill="#fff">GLOVES</text>'+
+   '<rect x="376" y="54" width="46" height="62" rx="6" fill="#fff" stroke="#bbb" stroke-width="2"/><rect x="384" y="102" width="30" height="6" rx="2" fill="#ddd"/><rect x="370" y="168" width="104" height="14" rx="4" fill="#cfd8de"/><path d="M372 168 q50 28 100 0Z" fill="#e8eef2" stroke="#cfd8de" stroke-width="2"/><path d="M414 168 V150 H434" stroke="#6b7885" stroke-width="6" fill="none" stroke-linecap="round"/><rect x="444" y="140" width="14" height="28" rx="4" fill="#7dd3a8"/>'+
+   '<rect x="0" y="80" width="44" height="182" fill="#bfd3c6"/><circle cx="32" cy="176" r="7" fill="#6b7885"/>';
+  var front='<rect y="262" width="480" height="98" fill="#b9a083"/><rect y="262" width="480" height="12" fill="#d9c7aa"/><path d="M120 274V360M240 274V360M360 274V360" stroke="#a48b6e" stroke-width="3"/>'+
+   '<rect x="392" y="236" width="48" height="30" rx="3" fill="#c99d6b"/><rect x="396" y="240" width="40" height="22" fill="#fff"/><path d="M402 247H430M402 253H424M402 259H428" stroke="#aab" stroke-width="2.5"/><circle cx="408" cy="247" r="2" fill="#2fbf71"/>'+
+   '<rect x="50" y="240" width="40" height="24" rx="4" fill="#fff" stroke="#cfd8de"/><rect x="48" y="234" width="44" height="8" rx="3" fill="#46c2ff"/><path d="M110 258 L150 250" stroke="#9aa5ae" stroke-width="4" stroke-linecap="round"/><circle cx="108" cy="259" r="4" fill="#e5483d"/>';
+  return {defs:defs,back:back,front:front,lx:194,rx:346};
+};
+function sceneSVG(ch,dirty){
+  var s=SC[ch.scene](),f=figure(ch);
+  return '<svg class="sc'+(dirty?' dirty':'')+'" id="scene" viewBox="0 0 480 360" role="img" aria-label="'+esc(ch.name+', the '+ch.role.toLowerCase()+', in the care home')+'"><defs>'+s.defs+'</defs>'+s.back+'<g transform="translate(270 100)"><g class="breathe">'+f.body+'</g></g>'+s.front+'<g transform="translate(270 100)">'+f.hands+'</g></svg>';
+}
+function portrait(ch){
+  var f=figure(ch),id='clip'+ch.id;
+  return '<svg viewBox="0 0 150 172" aria-hidden="true"><defs><clipPath id="'+id+'"><path d="M75,10 L140,30 V88 C140,128 106,152 75,164 C44,152 10,128 10,88 V30 Z"/></clipPath></defs><path d="M75,4 L146,26 V90 C146,132 110,158 75,170 C40,158 4,132 4,90 V26 Z" fill="'+ch.accent+'"/><g clip-path="url(#'+id+')"><rect width="150" height="172" fill="'+ch.pastel+'"/><g transform="translate(75 62) scale(.92)">'+f.body+'</g></g><path d="M75,10 L140,30 V88 C140,128 106,152 75,164 C44,152 10,128 10,88 V30 Z" fill="none" stroke="#1b1738" stroke-width="4"/></svg>';
+}
+function germChar(x,y,s,d){
+  return '<g transform="translate('+x+' '+y+') scale('+s+')"><g class="fl" style="animation-delay:'+d+'s"><circle r="26" fill="#7dff6a" stroke="#2fa02a" stroke-width="3"/><circle r="38" fill="none" stroke="#7dff6a" stroke-width="7" stroke-dasharray="5 11" opacity=".9"/><g class="germ-eyes" style="transform-box:fill-box;transform-origin:center"><circle cx="-9" cy="-5" r="7" fill="#fff"/><circle cx="9" cy="-5" r="7" fill="#fff"/><circle cx="-7" cy="-4" r="3.4" fill="#17381d"/><circle cx="11" cy="-4" r="3.4" fill="#17381d"/></g><path d="M-10,9 Q0,20 10,9" stroke="#17381d" stroke-width="3.5" fill="none" stroke-linecap="round"/></g></g>';
+}
+function heroSVG(){
+  var P='M-40,-20 Q-44,-92 0,-92 Q44,-92 40,-20 L40,40 Q40,86 0,86 Q-40,86 -40,40Z';
+  return '<svg viewBox="0 0 420 380" class="dirty" aria-label="A large blue glove with cheeky green germs peeking out from behind it">'+
+   '<defs><radialGradient id="hg" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#6d5bff" stop-opacity=".55"/><stop offset="1" stop-color="#6d5bff" stop-opacity="0"/></radialGradient></defs>'+
+   '<circle cx="210" cy="190" r="190" fill="url(#hg)"/>'+
+   germChar(78,120,1.15,0)+germChar(344,96,.9,.8)+germChar(330,300,1.05,1.4)+germChar(92,310,.8,.4)+
+   '<g transform="translate(210 190) scale(2.15)" style="filter:drop-shadow(0 8px 12px rgba(0,0,0,.35))">'+
+   '<g class="fl"><ellipse cx="-44" cy="14" rx="12" ry="24" transform="rotate(24 -44 14)" fill="#46c2ff" stroke="#1b8fcb" stroke-width="3"/>'+
+   '<path d="'+P+'" fill="#46c2ff" stroke="#1b8fcb" stroke-width="3"/><path d="M-14,-84 V-30 M12,-86 V-30" stroke="#1b8fcb" stroke-width="3" opacity=".5"/>'+
+   '<path d="M-26,-50 Q-26,-76 -8,-80" stroke="#fff" stroke-width="7" fill="none" opacity=".6" stroke-linecap="round"/>'+
+   '<rect x="-42" y="52" width="84" height="26" rx="8" fill="#2aa5e6" stroke="#1b8fcb" stroke-width="3"/>'+
+   '<path class="gtint" d="'+P+'" fill="#7dff6a"/></g></g>'+
+   '<g style="font-size:34px"><text class="fl" x="30" y="70" style="animation-delay:.3s">📱</text><text class="fl" x="350" y="190" style="animation-delay:1s">🚪</text><text class="fl" x="40" y="250" style="animation-delay:.6s">🔔</text><text class="fl" x="250" y="52" style="animation-delay:1.2s">🍗</text></g>'+
+   '</svg>';
+}
+
+/* ================= NEW SCENES ================= */
+SC.medroom=function(){
+  var back='<rect width="480" height="262" fill="#e6edf1"/><rect y="170" width="480" height="92" fill="#d3dde3"/><rect y="166" width="480" height="5" fill="#b3c2cb"/>'+
+   '<rect x="18" y="52" width="150" height="206" rx="8" fill="#c5d0d8" stroke="#9fb0bb" stroke-width="3"/><path d="M93 52V258" stroke="#9fb0bb" stroke-width="3"/><rect x="80" y="140" width="8" height="26" rx="3" fill="#6b7885"/><rect x="98" y="140" width="8" height="26" rx="3" fill="#6b7885"/><rect x="62" y="66" width="62" height="22" rx="4" fill="#fff"/><path d="M93 70V84M86 77H100" stroke="#2fa05a" stroke-width="5" stroke-linecap="round"/><circle cx="93" cy="108" r="6" fill="#e5483d" class="blinkr"/>'+
+   '<circle cx="250" cy="46" r="22" fill="#fff" stroke="#9fb0bb" stroke-width="4"/><path d="M250 46V30M250 46L260 52" stroke="#1b1b1e" stroke-width="3" stroke-linecap="round"/>'+
+   '<rect x="356" y="44" width="106" height="84" rx="4" fill="#fff" stroke="#9fb0bb" stroke-width="3"/><g stroke="#b9c3ca" stroke-width="3"><path d="M366 62H452M366 76H452M366 90H452M366 104H452M366 118H440"/></g><rect x="366" y="56" width="26" height="12" fill="#cfd8de"/>';
+  var front='<rect y="262" width="480" height="98" fill="#8a98a3"/><rect y="262" width="480" height="12" fill="#d3dbe1"/><path d="M120 274V360M240 274V360M360 274V360" stroke="#78858f" stroke-width="3"/>'+
+   '<g fill="#fff" stroke="#cfd6dc" stroke-width="2"><rect x="180" y="238" width="26" height="24" rx="4"/><rect x="214" y="238" width="26" height="24" rx="4"/><rect x="248" y="238" width="26" height="24" rx="4"/></g><g fill="#f4a83a"><circle cx="193" cy="250" r="4"/><circle cx="227" cy="250" r="4"/><circle cx="261" cy="250" r="4"/></g><g fill="#fff"><circle cx="198" cy="253" r="2.5"/><circle cx="232" cy="248" r="2.5"/></g>'+
+   '<rect x="320" y="236" width="70" height="26" rx="3" fill="#2f5db2"/><rect x="326" y="242" width="58" height="4" fill="#fff"/><rect x="326" y="250" width="40" height="4" fill="#fff" opacity=".7"/>'+
+   '<rect x="410" y="222" width="30" height="40" rx="5" fill="#cfe9f7" stroke="#9fc4d6" stroke-width="2"/><rect x="414" y="238" width="22" height="20" rx="3" fill="#8fd0ee"/>'+
+   '<rect x="40" y="226" width="96" height="36" rx="4" fill="#e5483d"/><text x="88" y="241" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-weight="800" font-size="11" fill="#fff">DO NOT</text><text x="88" y="255" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-weight="800" font-size="11" fill="#fff">DISTURB</text>';
+  return {defs:'',back:back,front:front};
+};
+SC.room=function(){
+  var back='<rect width="480" height="262" fill="#f1e3d1"/><rect y="172" width="480" height="90" fill="#cfae85"/><rect y="168" width="480" height="5" fill="#a98558"/>'+
+   '<rect x="318" y="30" width="110" height="96" rx="4" fill="#cdeefc"/><circle class="sunr" cx="350" cy="58" r="11" fill="#ffd166"/><path d="M373 30V126M318 78H428" stroke="#fff" stroke-width="4"/><rect x="318" y="30" width="110" height="96" rx="4" fill="none" stroke="#fff" stroke-width="5"/><path d="M308 24Q330 80 316 132H340Q348 80 344 24Z" fill="#b5835a"/><path d="M438 24Q416 80 430 132H406Q398 80 402 24Z" fill="#b5835a"/>'+
+   '<rect x="212" y="44" width="62" height="46" fill="#fff" stroke="#8a6b4a" stroke-width="4"/><path d="M216 86Q232 58 248 74Q258 64 270 82V86Z" fill="#8bc48f"/><circle cx="256" cy="56" r="6" fill="#ffd166"/>'+
+   '<rect x="0" y="150" width="150" height="112" rx="6" fill="#fff"/><rect x="0" y="130" width="14" height="132" fill="#a98558"/><rect x="0" y="176" width="150" height="48" fill="#7aa6c9"/><rect x="0" y="176" width="150" height="10" fill="#9bbfdc"/><rect x="18" y="146" width="48" height="26" rx="12" fill="#fff" stroke="#dfd8cc" stroke-width="2"/>';
+  var front='<rect y="262" width="480" height="98" fill="#b8956b"/><rect y="262" width="480" height="12" fill="#d8bd96"/>'+
+   '<rect x="150" y="256" width="250" height="14" rx="4" fill="#d9e0e5"/><rect x="156" y="270" width="238" height="90" fill="#9aa8b2"/><path d="M156 300H394" stroke="#8795a0" stroke-width="3"/>'+
+   '<g fill="#fff" stroke="#cfd6dc" stroke-width="2"><rect x="176" y="240" width="40" height="16" rx="3"/><rect x="180" y="226" width="40" height="14" rx="3"/></g><rect x="300" y="238" width="22" height="18" rx="3" fill="#f6f6f8"/><path d="M322 243q9 0 0 9" stroke="#f6f6f8" stroke-width="3" fill="none"/><g fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path class="steam" d="M308 230q-4 -8 0 -14"/><path class="steam s2" d="M314 230q4 -8 0 -14"/></g>'+
+   '<rect x="350" y="236" width="24" height="20" rx="3" fill="#2f5db2"/><rect x="354" y="241" width="16" height="3" fill="#fff"/>'+
+   '<rect x="420" y="230" width="46" height="36" rx="5" fill="#8f6b43"/><rect x="430" y="214" width="26" height="18" rx="8" fill="#ffe7a8"/><circle cx="443" cy="206" r="4" fill="#ffd166"/>';
+  return {defs:'',back:back,front:front};
+};
+SC.office=function(){
+  var back='<rect width="480" height="262" fill="#e9e6df"/><rect y="176" width="480" height="86" fill="#d4cfc4"/><rect y="172" width="480" height="5" fill="#b9b2a3"/>'+
+   '<rect x="30" y="34" width="150" height="100" rx="4" fill="#c9a679" stroke="#8a6b4a" stroke-width="5"/><g><rect x="44" y="48" width="38" height="28" fill="#fff"/><rect x="92" y="46" width="34" height="34" fill="#fff4b8"/><rect x="136" y="50" width="32" height="26" fill="#d9f0e1"/><rect x="50" y="90" width="44" height="30" fill="#fff"/><rect x="106" y="92" width="52" height="26" fill="#fff"/></g><g fill="#e5483d"><circle cx="63" cy="48" r="3"/><circle cx="109" cy="46" r="3"/><circle cx="152" cy="50" r="3"/></g>'+
+   '<rect x="330" y="30" width="110" height="94" rx="4" fill="#cdeefc"/><circle class="sunr" cx="364" cy="58" r="11" fill="#ffd166"/><path d="M385 30V124M330 77H440" stroke="#fff" stroke-width="4"/><rect x="330" y="30" width="110" height="94" rx="4" fill="none" stroke="#fff" stroke-width="5"/>'+
+   '<circle cx="236" cy="52" r="22" fill="#fff" stroke="#8a8a90" stroke-width="4"/><path d="M236 52V36M236 52L246 58" stroke="#1b1b1e" stroke-width="3" stroke-linecap="round"/>'+
+   '<rect x="400" y="150" width="70" height="112" rx="4" fill="#aab3ba"/><path d="M400 187H470M400 224H470" stroke="#8a949c" stroke-width="3"/><rect x="428" y="166" width="14" height="5" rx="2" fill="#6b7885"/><rect x="428" y="203" width="14" height="5" rx="2" fill="#6b7885"/>';
+  var front='<rect y="262" width="480" height="98" fill="#a69a86"/><rect y="262" width="480" height="12" fill="#cdbfa6"/>'+
+   '<rect x="60" y="256" width="360" height="14" rx="4" fill="#d8ccb5"/><rect x="70" y="270" width="340" height="90" fill="#8e8270"/>'+
+   '<rect x="90" y="214" width="80" height="44" rx="4" fill="#2b2b2f"/><rect x="96" y="220" width="68" height="32" fill="#9dd0f0"/><rect x="82" y="256" width="96" height="6" rx="3" fill="#cfd4d9"/>'+
+   '<rect x="200" y="238" width="58" height="18" rx="2" fill="#fff"/><path d="M206 244H250M206 250H240" stroke="#bbb" stroke-width="2"/>'+
+   '<rect x="330" y="236" width="20" height="20" rx="3" fill="#fff"/><path d="M350 241q8 0 0 9" stroke="#fff" stroke-width="3" fill="none"/><rect x="372" y="240" width="22" height="16" rx="3" fill="#2b2b2f"/><rect x="375" y="243" width="16" height="9" fill="#6ac0ff" class="twk"/>';
+  return {defs:'',back:back,front:front};
+};
+SC.corridor=function(){
+  var back='<rect width="480" height="262" fill="#efe9e0"/><rect y="150" width="480" height="112" fill="#d9cfc1"/><rect y="148" width="480" height="8" fill="#b9ad9a"/><rect y="128" width="480" height="6" rx="3" fill="#a79a86"/>'+
+   '<rect x="18" y="40" width="112" height="222" rx="4" fill="#c9d3da" stroke="#8d9aa4" stroke-width="4"/><rect x="34" y="60" width="80" height="44" rx="3" fill="#2fa05a"/><circle cx="58" cy="76" r="5" fill="#fff"/><path d="M58 82L68 90L82 84M68 90L66 100" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/><rect x="108" y="170" width="8" height="30" rx="3" fill="#6b7885"/>'+
+   '<rect x="392" y="96" width="30" height="40" rx="5" fill="#e5483d"/><rect x="398" y="86" width="18" height="14" rx="3" fill="#8a2a22"/><rect x="394" y="136" width="26" height="6" fill="#444"/>'+
+   '<rect x="436" y="90" width="30" height="36" rx="3" fill="#e5483d" stroke="#8a2a22" stroke-width="2"/><rect x="444" y="102" width="14" height="14" rx="2" fill="#fff"/><circle class="blinkr" cx="451" cy="109" r="4" fill="#e5483d"/>'+
+   '<rect x="186" y="14" width="108" height="22" rx="6" fill="#fff"/><rect x="186" y="14" width="108" height="22" rx="6" fill="#ffd1d1" class="blinkr"/>'+
+   '<ellipse cx="240" cy="160" rx="120" ry="14" fill="#fff" opacity=".15"/>';
+  var front='<rect y="262" width="480" height="98" fill="#b3a78f"/><rect y="262" width="480" height="12" fill="#d3c6ac"/><path d="M120 274V360M240 274V360M360 274V360" stroke="#9c9079" stroke-width="3"/>'+
+   '<rect x="150" y="244" width="260" height="20" rx="4" fill="#fff"/><path d="M150 264L170 300H390L410 264Z" fill="#cfd6e8"/><g stroke="#aab" stroke-width="2"><path d="M200 266V298M250 266V298M300 266V298M350 266V298"/></g><circle cx="176" cy="308" r="8" fill="#444"/><circle cx="384" cy="308" r="8" fill="#444"/><rect x="170" y="226" width="220" height="20" rx="8" fill="#e7ecf6"/><rect x="190" y="212" width="170" height="16" rx="8" fill="#fff"/>';
+  return {defs:'',back:back,front:front};
+};
+
+/* ================= NEW CHARACTERS ================= */
+function grid(a){
+  var xs=[18,50,82],ys=[24,52,80],o=[];
+  for(var i=0;i<a.length;i++){var r=Math.floor(i/3),left=a.length-r*3,x;
+    x=(left===2&&r===2)?[34,66][i%3]:xs[i%3];
+    o.push({id:a[i][0],i:a[i][1],l:a[i][2],x:x,y:ys[r]});}
+  return o;
+}
+var MEDCH=[{id:'tola',name:'Mei',role:'Senior carer',scene:'medroom',
+ skin:'#8a5a3a',skinDk:'#794b2d',hair:'short',hairC:'#15110f',top:'#2f5d50',outfit:'night',sleeve:'long',bare:true,
+ sub:'Mei is on the 8am medicines round.',
+ intro:["It is 8am. Mei is the senior carer on shift and has 12 residents to give medicines to before breakfast finishes.","Medicines are one of the biggest sources of harm in care, and also one of the easiest places to take a shortcut when the day gets busy. Your job is to help Mei do the round safely without letting it take over the whole morning."],
+ facts:["Every dose is recorded on the medication administration record (MAR) and the record is a legal document.","Residents with capacity are allowed to refuse their medicines.","Errors and near misses are reported so the home can learn from them, not to blame the person who found them."],
+ gl:["Round is on track","Round is slipping"],bn:["This keeps the round safe and honest.","This leaves a gap in the round."],mk:"⚠️",hl:"Where the gap reached",
+ uvTitle:"Where the risk spread",uvLead:"Green means the risk reached it. White means it stayed protected.",uvBtn:"💡 Show the ripple effect",gate:"Show where the risk from your choices spread.",
+ hot:grid([["mar","📋","MAR chart"],["pots","💊","Tablet pots"],["tea","☕","His tea"],["trust","🤝","Resident trust"],["senior","📞","Senior and prescriber"],["stock","📦","Stock count"],["family","👪","Family"],["round","🦺","Rest of the round"],["record","🗂️","Audit trail"]]),
+ steps:[
+  {title:"Mr Singh says he will take his tablets later.",sit:"He has capacity to make decisions about his medicines. He looks at the pot, says \"Not now, I will take them later,\" and turns back to his tea.",
+   lesson:"People with capacity can refuse medicines. Record the refusal honestly and tell the senior so the prescriber can be consulted if the medicine is time critical.",
+   opts:[
+    O("best","Respect his choice, record the refusal on the MAR using the correct code, offer again later in line with the timing guidance, and tell the senior on shift.",3,2,1,0,[],"He can refuse. You record it accurately, offer again when it is safe to do so, and escalate so the prescriber can advise if the medicine is time critical."),
+    O("over","Stop the round and call the GP and his family straight away to report that he refused one dose.",3,3,3,0,[],"Telling the senior is right, but halting the whole round for one refused dose delays eleven other people. Follow the policy for refused doses."),
+    O("short","Crush the tablets into his tea so he does not notice.",0,0,0,3,["tea","trust","mar"],"Hiding medicine in food or drink is covert administration. It is only allowed after a capacity assessment and a best interests decision involving the prescriber and pharmacist, never as a quick fix."),
+    O("flawed","Sign the MAR as given and keep the tablets to offer him later.",1,0,0,2,["mar","pots","record"],"Signing before you have seen the medicine taken is a falsified record. The MAR now says something that did not happen.")
+   ]},
+  {title:"Someone interrupts Mei halfway through the round.",sit:"Mr Hussain's tablets are in the pot on the tray. A carer is asking Mei to look at a worried visitor and a call bell is ringing. The next three residents are waiting.",
+   lesson:"Give one person's medicines at a time, watch them take them, and sign straight away. Do not leave medicines unattended or prepare them in advance.",
+   opts:[
+    O("best","Finish giving Mr Hussain his tablets, watch him swallow them, sign the MAR, then ask the carer to cover the bell and tell the visitor you will come over in a few minutes.",3,2,1,0,[],"You finish the task in front of you. Giving, seeing and signing in one go removes the chance of a missed or double dose, and others can cover the bell."),
+    O("over","Lock the trolley, abandon the round and start again from the first resident once the interruptions have been dealt with.",3,3,3,0,[],"Safe, but starting over wastes time and risks doubled doses. You only need to finish the person you are with."),
+    O("short","Leave the pot on his table so he can take them when ready, sign the MAR now to save time, and go to the call bell.",0,0,0,3,["pots","mar","record","trust"],"Medicines left unattended can be taken by someone else, dropped or missed. Signing before you see them swallowed is a false record."),
+    O("flawed","Pop everyone's tablets into pots now so the round runs faster once the interruption is over.",1,0,0,2,["pots","mar","stock"],"Medicines should be prepared for one person just before they are given. Pre-prepared pots are how doses get mixed up.")
+   ]},
+  {title:"Mei spots a gap in last night's MAR.",sit:"Mrs Novak's 8pm tablet has no signature. Nobody wrote a refusal code either. It could have been missed, or given and not signed.",
+   lesson:"If you find a possible error, do not guess and do not tidy it up. Tell your senior or manager now and record facts.",
+   opts:[
+    O("best","Check with the night staff who did the round, tell the manager straight away, follow the medicines error procedure, record the facts, and ask the pharmacist or GP what to monitor. Be open with Mrs Novak and her family.",3,2,1,0,[],"Telling the right people quickly lets someone seek clinical advice. Being honest with the person and family is part of the duty of candour."),
+    O("over","Phone 999 and send Mrs Novak to hospital for observation even though she is well and the tablet is not time critical.",3,3,3,0,[],"Take clinical advice first. Calling an ambulance without it can cause harm and uses resources that someone else may need."),
+    O("short","Sign the missing entry as given so the MAR looks complete.",0,0,0,3,["mar","record","trust","family"],"Signing something you did not see is falsifying a record. It also hides a possible error that the prescriber may need to know about."),
+    O("flawed","Say nothing, but keep a close eye on Mrs Novak all day in case she seems unwell.",1,1,0,2,["senior","family","record"],"Watching quietly is not enough. A possible missed dose needs to be reported and clinical advice taken, not hidden.")
+   ]},
+  {title:"A daughter has brought in a herbal supplement.",sit:"Mrs Novak's daughter hands Mei a bottle and asks if her mum can have one every morning with her other medicines. It is natural, she says, so it cannot do any harm.",
+   lesson:"Nothing is added to a person's medicines without a prescriber or pharmacist check. Natural products can interact with prescribed medicines.",
+   opts:[
+    O("best","Thank her for asking, explain that supplements can interact with prescribed medicines, do not give it, and ask the pharmacist or GP to review it. Record the conversation.",3,2,1,0,[],"Some herbal products change how prescribed medicines work. A professional check first keeps her safe, and you stay on good terms with her daughter."),
+    O("over","Tell her that nothing may ever be brought into the home again and check all her visitors' bags.",3,3,3,0,[],"Families should feel able to ask. This protects nobody extra and damages trust."),
+    O("short","Add it to the morning tablets, since it is natural and her daughter knows her best.",0,0,0,3,["pots","mar","family","stock"],"Giving an unprescribed product without a check can cause harm, and it is not on the MAR so nobody else knows about it."),
+    O("flawed","Tell the daughter she can give it herself in the room whenever she visits.",1,0,0,2,["family","record","mar"],"This lets an unchecked product into a medicines routine with no record. It could affect how her prescribed tablets work.")
+   ]}
+ ],
+ end:{clean:"The round finishes on time and every dose on the MAR matches what was actually given. Mei's handling of the gap means the pharmacist advises quickly, and Mrs Novak is fine.",
+      near:"Nobody comes to harm, but the manager finds some entries on the MAR that do not match and carries out a medicines audit, which takes a lot of time.",
+      out:"A medicines error reaches a resident and needs hospital advice. The home has to report it, review its procedures and explain what happened to the family."}}];
+
+var SAFEGCH=[{id:'kemi',name:'Anna',role:'Care assistant',scene:'room',
+ skin:'#6b4423',skinDk:'#5a371c',hair:'afro',hairC:'#15110f',top:'#7a3b6b',outfit:'night',sleeve:'short',bare:true,
+ sub:"Anna is on a day shift and keeps noticing things that do not feel right.",
+ intro:["Anna has worked at the home for six months. She is good with residents and they trust her, which means they sometimes tell her things they tell nobody else.","Today brings four moments where Anna has to decide whether to speak up, write it down, or let it go. Your job is to help her protect the people she supports, and the people she works with."],
+ facts:["Safeguarding is everyone's job, whatever their role.","A concern does not have to be proven before it is reported.","What staff write down and share, including photos, affects dignity, privacy and trust."],
+ gl:["Someone is protected","A concern is still open"],bn:["Someone is safer because of this.","Someone is more exposed because of this."],mk:"⚠️",hl:"Who was left exposed",
+ uvTitle:"Where the risk spread",uvLead:"Green means the risk reached it. White means it stayed protected.",uvBtn:"💡 Show the ripple effect",gate:"Show where the risk from your choices spread.",
+ hot:grid([["clarke","👵","Mrs Clarke"],["evidence","🗣️","What she said"],["staff","🧑‍⚕️","Staff member"],["team","👥","Wider team"],["manager","📞","Manager"],["notes","📝","Daily notes"],["photo","📸","Photos and phones"],["family","👪","Families"],["cqc","🏛️","CQC and local authority"]]),
+ steps:[
+  {title:"Mrs Clarke whispers a worry while Anna helps her dress.",sit:"She says one of the night staff handles her roughly when nobody is watching. Then she asks Anna not to tell anyone.",
+   lesson:"Never promise to keep a safeguarding concern secret. Listen, record in their own words, and report straight away. Do not investigate yourself.",
+   opts:[
+    O("best","Listen calmly, tell her honestly that you must pass this on to keep her safe, write down what she said in her own words, and report it to the manager or safeguarding lead straight away.",3,2,1,0,[],"Staying calm, being honest, recording facts and reporting at once follows safeguarding procedure and gets protection in place quickly."),
+    O("over","Announce it at the next handover so the whole team can keep watch.",3,3,2,0,[],"The right people need to know, but telling the whole team breaches confidentiality, may identify the person, and could spoil any investigation. Report to the manager or safeguarding lead."),
+    O("short","Promise to keep it secret so she keeps trusting you.",0,0,0,3,["clarke","evidence","manager"],"You cannot promise secrecy when someone may be at risk. If you do, the concern is never reported and she stays exposed."),
+    O("flawed","Speak to the night staff member first to hear their side.",1,1,0,2,["staff","evidence","clarke"],"Confronting the person could put Mrs Clarke at greater risk and spoil any investigation. It is not your role to investigate.")
+   ]},
+  {title:"Anna notices a bruise on Mr Reid's upper arm.",sit:"It is the size of a fifty pence piece and purple. Mr Reid says he bumped it, though he cannot say when. There is nothing in the notes about a fall or knock.",
+   lesson:"Record what you see, ask open questions, and report it so a trained person can decide. Do not guess the cause.",
+   opts:[
+    O("best","Describe the bruise (where, size, colour) on a body map, record what he said in his words, and tell the senior or manager so they can decide whether to refer it.",3,2,1,0,[],"A factual record lets a trained person judge whether it needs a safeguarding referral, and shows if bruises are repeating."),
+    O("over","Stop all his personal care and demand a doctor examines him before anything else happens today.",3,3,2,0,[],"A bruise needs recording and reporting, not halting his day. The senior decides on any medical review."),
+    O("short","Assume he knocked it and leave it, since he says it was a bump.",0,0,0,3,["clarke","notes","manager"],"An unexplained bruise should always be recorded and reported. If it is a pattern, nobody will ever see it."),
+    O("flawed","Write \"bruise probably from a fall\" in the notes.",1,0,0,2,["notes","evidence"],"Nobody saw a fall. Guessing the cause in the record can hide a safeguarding concern and mislead the next shift.")
+   ]},
+  {title:"A colleague posts a photo of Mrs Bailey in the staff WhatsApp group.",sit:"It is Mrs Bailey's birthday and she is wearing a party hat. The photo has been taken on a personal phone and posted with a caption that names her. Everyone has reacted with a heart.",
+   lesson:"Photos of residents need consent, are taken on approved devices, and are never posted in staff chats or social media.",
+   opts:[
+    O("best","Message her privately, explain that the photo breaks confidentiality, ask her to remove it, and tell the manager so it can be handled under the home's policy.",3,2,1,0,[],"The photo shares a resident's image and name without consent. The manager needs to know because it may be a data breach."),
+    O("over","Report your colleague to the police and tell the manager she should be dismissed.",3,3,2,0,[],"The photo was well meant. A private word and a report to the manager lets the home respond fairly and in proportion."),
+    O("short","Add a heart to the post. It is lovely and she would not mind.",0,0,0,3,["photo","family","clarke"],"Mrs Bailey may be happy, but she has not given consent and the photo is now on a personal phone in a chat group. It cannot be taken back."),
+    O("flawed","Ask your colleague to blur Mrs Bailey's face but leave the post up.",1,1,0,2,["photo","notes"],"The caption names her and the original is still on a personal phone. Blurring does not fix the consent problem.")
+   ]},
+  {title:"Anna realises her own note about Mrs Bailey was unfair.",sit:"Yesterday she wrote that Mrs Bailey was \"grumpy and attention seeking all morning.\" Reading it back, she can see that Mrs Bailey rang four times because she felt lonely.",
+   lesson:"Records are factual and permanent. Correct a mistake by adding a dated, signed late entry. Never delete or overwrite the original.",
+   opts:[
+    O("best","Add a dated, signed late entry giving the facts (she rang four times between 9 and 10 and said she felt lonely), cross out the original with a single line, and tell the senior.",3,2,1,0,[],"The correction is transparent and the original is still legible. The next shift now has the right picture of how Mrs Bailey is."),
+    O("over","Rewrite every note you have ever written about Mrs Bailey this month.",3,3,2,0,[],"One unfair note needs a correction, not a month of rewriting. Rewriting old notes can look like tampering."),
+    O("short","Leave it. Nobody reads the old notes.",0,0,0,3,["notes","clarke","cqc"],"Mrs Bailey, her family or an inspector may read it. The next shift may treat her as a nuisance instead of recognising she is lonely."),
+    O("flawed","Use correction fluid over the line and write a new version.",1,0,0,2,["notes","cqc"],"Deleting or covering entries is not allowed because it hides what was written. Always strike through with a single line and sign.")
+   ]}
+ ],
+ end:{clean:"Mrs Clarke is safer, the bruise is recorded, the photo is taken down, and the notes tell the truth. Anna's six months of trust with residents is well placed.",
+      near:"Nobody is harmed, but some of what Anna saw reached the right people late, and the manager runs a refresher on reporting and records.",
+      out:"A concern was not reported in time. A resident has been left exposed, and the home now faces a safeguarding enquiry and questions from CQC and the local authority."}}];
+
+var EMERGCH=[{id:'seun',name:'Daniel',role:'Team leader',scene:'corridor',
+ skin:'#5b3a24',skinDk:'#4d2f1c',hair:'short',hairC:'#15110f',top:'#2b4f87',outfit:'night',sleeve:'long',bare:true,
+ sub:"Daniel is the team leader on a day that keeps escalating.",
+ intro:["Daniel is leading the shift with six staff. In the next few hours Daniel will deal with a resident who has fallen, someone choking at lunch, a stomach bug on one corridor and an upset family.","Every decision is about doing the right thing first, then the paperwork, then telling the right people. Your job is to help Daniel stay calm and keep everyone safe."],
+ facts:["A team leader's first job in any emergency is to make people safe.","Falls, choking and outbreaks all have a procedure and the team needs a leader who follows it.","Families, CQC and public health need to hear the truth promptly."],
+ gl:["Situation controlled","Situation slipping"],bn:["Daniel keeps things under control.","The situation is getting harder to control."],mk:"⚠️",hl:"What the risk reached",
+ uvTitle:"Where the risk spread",uvLead:"Green means the risk reached it. White means it stayed protected.",uvBtn:"💡 Show the ripple effect",gate:"Show where the risk from your choices spread.",
+ hot:grid([["resident","🧓","Mr Walsh"],["airway","🫁","Airway"],["ambulance","🚑","999 call"],["team","👥","Staff team"],["family","👪","Family"],["record","📝","Incident record"],["bug","🦠","Corridor 2"],["dining","🍽️","Dining room"],["cqc","🏛️","CQC and public health"]]),
+ steps:[
+  {title:"Mr Walsh is on the floor beside his bed.",sit:"He is awake and says his hip really hurts. Daniel is first on the scene. Two carers are further along the corridor.",
+   lesson:"Keep them still, stay with them and get the right help first. Paperwork comes after.",
+   opts:[
+    O("best","Stay with him, keep him still, warm and reassured, call for help and follow the falls and emergency procedure, which may mean calling 999.",3,2,1,0,[],"Keeping him still and getting trained help quickly protects him from further injury, and someone stays with him the whole time."),
+    O("over","Pull three staff off their rounds to stand with him and pause care for the whole unit until the ambulance arrives.",3,3,3,0,[],"One person stays with him and one calls for help. Stopping care for everyone else puts other residents at risk."),
+    O("short","Help him back onto the bed so he is more comfortable.",0,0,0,3,["resident","record","family"],"Moving someone with a possible hip fracture or head injury can make it worse. He should not be moved until assessed."),
+    O("flawed","Go to the office for the accident form so you do not forget any details.",1,1,0,2,["resident","record"],"Recording matters, but not before he is safe. Never leave a person who has fallen on their own.")
+   ]},
+  {title:"Mr Taylor starts coughing hard at lunch.",sit:"He is eating shepherd's pie when he begins to cough. His eyes are watering and his face is red, but he can still breathe and make a little noise. Daniel is two tables away.",
+   lesson:"If a person can cough, encourage them to keep coughing. If the cough becomes silent or weak, or they cannot breathe, give 5 back blows, then 5 abdominal thrusts, and call 999.",
+   opts:[
+    O("best","Go to him, encourage him to keep coughing, stay beside him, and be ready. If the cough becomes weak or silent, or he cannot breathe, give 5 back blows, then 5 abdominal thrusts, and call 999.",3,2,1,0,[],"A strong cough is the best way to clear the airway, so you encourage it and watch closely. If it stops working you act straight away with back blows, abdominal thrusts and a 999 call."),
+    O("over","Call 999 at once and ask other staff to stop the meal for everyone in the dining room while you stay with him.",3,3,3,0,[],"Calling for help is sensible if his cough fails, but stopping everyone else's meal is not needed. Stay with him and keep the rest of the room calm."),
+    O("short","Give him a glass of water to wash it down.",0,0,0,3,["resident","airway","dining"],"A drink can push the food further down or make him choke on the liquid. Do not give anything to eat or drink while someone is choking."),
+    O("flawed","Tip his head back and put your fingers in his mouth to sweep it out.",1,1,0,2,["resident","airway","ambulance"],"Sweeping blindly can push the food in deeper and bite you. Only remove an object you can see and reach, and let a strong cough do the work first.")
+   ]},
+  {title:"Two residents on Corridor 2 have vomiting and diarrhoea.",sit:"It started last night. Breakfast is about to begin and the team is stretched. Daniel needs to act before it spreads.",
+   lesson:"Isolate, wash with soap and water, clean with the right product, and tell the manager and public health. Gel does not reliably kill norovirus.",
+   opts:[
+    O("best","Keep the unwell residents in their rooms, use gloves and aprons for care, wash hands with soap and water, stop shared activities for the corridor, clean with the right product, and tell the manager and local health protection team.",3,2,2,0,[],"Isolating cases, washing properly and cleaning with the right product limits spread. Reporting early gets support in place."),
+    O("over","Close the whole home to everyone, cancel all meals and send every resident to hospital.",3,3,3,0,[],"Hospital transfer is not needed for everyone and could spread illness. Targeted control on one corridor is the safer response."),
+    O("short","Carry on as normal and use hand gel between residents.",0,0,0,3,["bug","dining","team","cqc"],"Alcohol gel does not reliably kill norovirus and breakfast in the shared dining room spreads it. Isolation and soap and water are essential."),
+    O("flawed","Clean the corridor with the usual spray and carry on, then review it after breakfast.",1,1,1,2,["bug","dining","cqc"],"Usual sprays are not enough for vomiting and diarrhoea. Waiting until after breakfast gives the illness hours to spread.")
+   ]},
+  {title:"Mr Walsh's daughter phones to ask what happened.",sit:"He has a fractured hip and is in hospital. Nobody has told her yet. She heard from the ambulance crew that he fell and she is upset and wants answers.",
+   lesson:"Be open and honest with families promptly. Apologise, explain what you know, and say what happens next. Notify CQC when required.",
+   opts:[
+    O("best","Apologise, tell her what happened and what you know so far, explain what happens next, say you will update her, record the call, and make sure the manager considers whether CQC must be notified.",3,2,1,0,[],"Prompt, honest communication and an apology are part of the duty of candour. The manager decides on notifications."),
+    O("over","Send a long written statement admitting full fault to every family in the home.",3,3,3,0,[],"One family needs to be told about one incident. Telling everyone is unnecessary, and statements of fault should come from the manager once facts are known."),
+    O("short","Tell her you will ring back once you know more, and hope she does not call again.",0,0,0,3,["family","record","cqc"],"Waiting before telling a family is not acceptable. The duty to be open applies as soon as the harm is known."),
+    O("flawed","Tell her he had a little slip and is fine.",1,0,0,2,["family","record"],"This is misleading. A fractured hip is serious and she deserves the facts.")
+   ]}
+ ],
+ end:{clean:"Mr Walsh is treated quickly, Mr Taylor's cough clears his airway, the corridor illness stops at two cases, and his daughter knows what is happening. Daniel's calm kept the whole team steady.",
+      near:"Nobody is seriously harmed, but some decisions were late. The manager holds a debrief and the team revisits the falls, fire and outbreak procedures.",
+      out:"Delays and shortcuts cause real harm. The home has to report notifiable events, face questions from CQC and explain to families what went wrong."}}];
+
+/* ================= MODULES ================= */
+var MODS=[
+ {id:"food",num:"01",track:"Infection prevention",title:"Food hygiene",game:"The Glove Trap",blurb:"Gloves feel safe, but germs hitch a ride on everyday habits. Follow four people through kitchen, dining room, night shift and management.",mins:"About 25 minutes",chars:FOODCH,gloss:GLOSS,
+  rulesTitle:"Five glove rules to remember",rules:RULES,short:"wash, glove, do the task, bin the gloves, wash again.",outTag:"An outbreak",howExtra:"Watch your gloves. If they become contaminated, germs travel with you."},
+ {id:"med",num:"02",track:"Safe practice",title:"Medication safety",game:"The Round",blurb:"Refusals, interruptions, gaps on the record and family requests. Keep the round safe without letting it take over the morning.",mins:"About 10 minutes",chars:MEDCH,
+  gloss:[["MAR","Medication administration record. It is a legal record of every dose given, refused or missed."],["Capacity","The ability to make a particular decision at a particular time. Adults are presumed to have it unless shown otherwise."],["Covert administration","Hiding medicine in food or drink. It is only allowed after a capacity assessment and a best interests decision."],["Medicines error","Any mistake in prescribing, giving or recording a medicine, including missed doses and missing signatures."],["Duty of candour","A legal duty to be open and honest with people, and their families, when something goes wrong."],["Audit trail","The record that shows who did what and when, so errors can be found and learned from."]],
+  rulesTitle:"Five medicines rules to remember",rules:["Only sign after you have seen the medicine taken.","Prepare and give one person's medicines at a time.","A refusal is a decision. Record it and tell your senior.","If you find an error, tell your senior or manager straight away and record the facts.","Never add or stop a product without a prescriber or pharmacist check."],short:"give it, see it, sign it, and speak up when something is wrong.",outTag:"Serious harm",howExtra:"Watch the status chip. If the round slips, the risk grows with it."},
+ {id:"safeg",num:"03",track:"Safeguarding",title:"Safeguarding and records",game:"Speak Up",blurb:"A whispered worry, an unexplained bruise, a photo in a group chat and a note that needs correcting. Decide when to speak and when to write.",mins:"About 10 minutes",chars:SAFEGCH,
+  gloss:[["Safeguarding","Protecting people's right to live safely, free from abuse and neglect."],["Disclosure","When a person tells you something that suggests they are at risk of harm."],["Body map","A diagram used to record the size, colour and location of marks or injuries."],["Late entry","A dated and signed note added to correct or add to an earlier record without changing it."],["Consent","Clear permission, freely given, for something such as a photo or sharing information."],["Data breach","When personal information is shared or lost without permission."]],
+  rulesTitle:"Five speak up rules to remember",rules:["Never promise to keep a safeguarding concern secret.","Record what was said in the person's own words, then report straight away.","Do not investigate or confront. Report to the manager or safeguarding lead.","Record facts, not guesses or labels. Never delete or overwrite.","Photos of residents need consent, an approved device and no staff chat posts."],short:"listen, record, report, and never keep it secret.",outTag:"Serious harm",howExtra:"Watch the status chip. It shows whether a concern is protected or still open."},
+ {id:"emerg",num:"04",track:"Emergency response",title:"Emergencies and outbreaks",game:"First Response",blurb:"A fall, a choking emergency, a stomach bug and an upset family. Lead a shift where every minute counts.",mins:"About 10 minutes",chars:EMERGCH,
+  gloss:[["Effective cough","A loud, strong cough that can still clear the airway. It should be encouraged and watched closely."],["Back blows","Five firm blows between the shoulder blades, given to a choking adult whose cough is not working."],["Abdominal thrusts","Inward and upward thrusts below the ribs, given after back blows if the person is still choking."],["Notifiable event","An incident that a service must tell CQC about, such as a serious injury or an outbreak."],["Outbreak","Two or more people linked by the same illness in a service. It triggers an outbreak procedure."],["Duty of candour","A legal duty to be open and honest with people, and their families, when something goes wrong."]],
+  rulesTitle:"Five first response rules to remember",rules:["Stay with a person who has fallen and do not move them until assessed.","If someone is choking, encourage a strong cough. If it fails, give 5 back blows, then 5 abdominal thrusts, and call 999.","During a stomach bug, isolate and wash with soap and water.","Tell families promptly and honestly.","Record facts once everyone is safe."],short:"make people safe first, then record, then tell.",outTag:"Serious harm",howExtra:"Watch the status chip. It shows whether Daniel is keeping control."}
+];
+/* monochrome portrait badges */
+MODS.forEach(function(m){m.chars.forEach(function(c){c.accent="#ffffff";c.pastel="#e9e9ec"})});
+/* generic fields for the original food characters */
+FOODCH.forEach(function(c){
+  c.mk=c.mk||"🦠";
+  if(c.id==="funmi"){c.bn=["Your systems are stronger.","A gap is left open in your systems."];c.hl="Risks left open";c.gate="Switch on the UV light to see which risks are still open.";c.uvBtn="💡 Switch on the UV light"}
+  else{c.bn=["Your gloves are clean again.","Germs are now on your gloves."];c.hl="Germs reached";c.gate="Switch on the UV light to see where the germs travelled.";c.uvBtn="💡 Switch on the UV light"}
+});
+/* ================= FIRE SAFETY ================= */
+var FIRECH=[{id:'chidi',name:'Chidi',role:'Night care assistant',scene:'corridor',
+ skin:'#6b4423',skinDk:'#5a371c',hair:'short',hairC:'#15110f',top:'#a33a2f',outfit:'night',sleeve:'short',bare:true,
+ sub:"Chidi is on a night shift with two colleagues and nineteen residents.",
+ intro:["It is 2:10am. The home is quiet and most residents are asleep. Chidi is one of three staff on shift, and tonight the fire safety training from last year is about to be tested.","Fire safety in care is about people who cannot move quickly, long corridors and doors that need to stay closed. Your job is to help Chidi keep everyone safe while using the plan the home has already made."],
+ facts:["Residents who are asleep, frail or in wheelchairs cannot always get themselves out.","Fire doors hold back smoke and flames for a set time, but only if they are shut.","Every resident should have a personal emergency evacuation plan (PEEP)."],
+ gl:["Fire under control","Fire risk building"],bn:["This keeps people safe from fire.","This puts people at greater risk from fire."],mk:"🔥",hl:"Where the fire risk reached",
+ uvTitle:"Where the risk spread",uvLead:"Green means the risk reached it. White means it stayed protected.",uvBtn:"💡 Show the ripple effect",gate:"Show where the risk from your choices spread.",
+ hot:grid([["resident","🧓","Residents"],["alarm","🚨","Alarm panel"],["doors","🚪","Fire doors"],["route","🛗","Escape route"],["fire","🔥","The fire"],["ext","🧯","Extinguisher"],["peep","📋","PEEP"],["service","🚒","Fire service"],["team","👥","Night team"]]),
+ steps:[
+  {title:"Chidi finds a small fire in a bin in the lounge.",sit:"A cigarette end has been thrown into a paper bin by a visitor. Flames are about the size of a football. Mr Hughes is asleep in an armchair three metres away.",
+   lesson:"Raise the alarm first. Protect people, then call the fire service. Only tackle a fire if it is small, you are trained, and you have an exit behind you.",
+   opts:[
+    O("best","Raise the alarm at the nearest call point, help Mr Hughes out of the room, close the door behind you, and make sure the fire service is called. Only use an extinguisher if the fire is still small, you have a clear exit and you are trained.",3,2,1,0,[],"The alarm brings help and starts the plan. Moving people away and closing the door limits smoke. Fighting a fire is the last step and only if it is safe."),
+    O("over","Evacuate every resident from the whole building to the car park straight away, including residents who are bedbound.",3,3,3,0,[],"One small fire in one room does not need a full evacuation. Moving frail and bedbound residents outside at 2am can cause harm. Follow the zone plan."),
+    O("short","Throw the kettle of water on the bin and deal with it quietly so nobody is woken.",0,0,0,3,["fire","resident","alarm","service"],"Staying quiet delays the alarm and the fire service. Water on a fire in a bin can spread it and make steam, and Mr Hughes is still in the room."),
+    O("flawed","Go to find the manager on call to ask what to do before you do anything else.",1,1,0,2,["fire","alarm","team"],"Time matters in a fire. Raise the alarm first. The on call manager can be phoned once people are safe.")
+   ]},
+  {title:"The fire alarm sounds and the panel shows Zone 2.",sit:"Zone 2 is the east wing. Several residents there need help to move. Last week the alarm went off because of burnt toast. Chidi is at the panel.",
+   lesson:"Treat every alarm as real until you know otherwise. Check the panel, follow the evacuation plan and close doors.",
+   opts:[
+    O("best","Check the panel for the zone, follow the evacuation plan for that area, close the doors, make sure the fire service has been called as the procedure says, and do a roll call so everyone is accounted for.",3,2,1,0,[],"A zone check and plan keep people safe without moving more people than needed. Closed doors slow fire and smoke, and a roll call shows who is out."),
+    O("over","Wake and evacuate every resident from the whole building to the car park at once.",3,3,3,0,[],"Moving everyone is not safe or needed when the alarm is in one zone. Many homes use horizontal evacuation first, moving people to the next fire compartment on the same floor."),
+    O("short","Assume it is the toast again and reset the panel.",0,0,0,3,["alarm","doors","resident","service"],"Never assume a false alarm. Resetting the panel without checking can leave people in a real fire."),
+    O("flawed","Open the doors in Zone 2 to check for yourself before deciding what to do.",1,1,0,2,["doors","resident","fire"],"Opening a fire door can let smoke and flames spread. Check the panel and the plan, and do not go into the zone alone.")
+   ]},
+  {title:"A fire door has been wedged open with a chair.",sit:"A colleague has propped Mrs Fraser's bedroom door open so she can hear people in the corridor. She finds it comforting and asks that it stays that way.",
+   lesson:"Fire doors only work when closed. Use an approved hold-open device linked to the alarm, never a wedge or a chair.",
+   opts:[
+    O("best","Remove the wedge, explain kindly why, ask the manager about an approved door holder that closes when the alarm sounds, and note it on the fire door check log.",3,2,1,0,[],"A wedged door will not hold back smoke. An approved hold-open device lets Mrs Fraser keep her door open and still closes when the alarm sounds."),
+    O("over","Remove every wedge in the home, take the doors off their hinges to be assessed, and report your colleague for misconduct.",3,3,3,0,[],"The fire risk is real, but taking doors off or jumping straight to discipline is not proportionate. Fix the problem and tell the manager."),
+    O("short","Leave it. She finds it comforting and it is only one door.",0,0,0,3,["doors","route","resident","fire"],"If a fire starts, an open door lets smoke into the corridor, which is the escape route for everyone."),
+    O("flawed","Swap the chair for a heavier door stop so it does not move.",1,0,0,2,["doors","route"],"A heavier wedge is still a wedge. The door will not shut in a fire.")
+   ]},
+  {title:"A new resident arrives in a wheelchair, and nobody has written his PEEP.",sit:"Mr Singh was admitted this afternoon and has a room at the end of the first floor corridor. His family say he has difficulty with stairs. The night team has not been told how to move him.",
+   lesson:"Every resident needs a personal emergency evacuation plan on admission, shared with everyone on shift.",
+   opts:[
+    O("best","Write his PEEP now with the team (how he moves, who helps, which route and equipment), put it in the fire folder, add him to the evacuation list, and tell the manager so it is reviewed.",3,2,1,0,[],"A PEEP tells the team exactly how to help him in an emergency. Sharing it and adding him to the list means the night team can act fast."),
+    O("over","Wake all residents tonight for an unplanned full evacuation drill to test the plan.",3,3,3,0,[],"Drills help, but a surprise night drill frightens residents and could harm them. Test the plan with a planned drill."),
+    O("short","Leave it until his admission review next month.",0,0,0,3,["peep","resident","team","route"],"A fire does not wait for the review. If there is no plan, nobody knows how to move him."),
+    O("flawed","Tell the day staff he is a wheelchair user and trust that everyone will cope.",1,1,0,2,["peep","team","route"],"Informal word of mouth is not a plan. Night staff might not know, and the details of who helps and which route to use are missing.")
+   ]}
+ ],
+ end:{clean:"The small fire is out before it spreads, everyone is accounted for, and Mr Singh has a PEEP that the whole team can use. The next fire inspection is clean.",
+      near:"Nobody is harmed, but a few things were late. The fire risk assessment is reviewed and the team has a refresher on its fire plan.",
+      out:"A fire spreads further than it should. People are put at risk, the fire service investigates, and the home has to explain its fire plan and training."}}];
+
+/* ================= DOCUMENTATION ================= */
+var DOCCH=[{id:'rosa',name:'Rosa',role:'Senior carer',scene:'office',
+ skin:'#d9a77c',skinDk:'#c8946a',hair:'bun',hairC:'#2a1a14',top:'#1f7a6b',outfit:'night',sleeve:'long',bare:true,
+ sub:"Rosa is finishing a shift and has four records to get right.",
+ intro:["It is 6:30pm. Rosa has been on shift since 8am and has a handover at 7. She is good with residents, and she knows records matter, but tonight she is tired and everything needs writing up.","If it is not written down, it did not happen. But what you write, when you write it and where you keep it all matter too. Your job is to help Rosa get the documentation right without losing the evening."],
+ facts:["Records are legal documents. They can be read by residents, families, inspectors and courts.","Good records are factual, timely, signed and stored securely.","Poor records are a common finding in CQC inspections."],
+ gl:["Record is reliable","Record is at risk"],bn:["This keeps the record reliable.","This puts the record at risk."],mk:"⚠️",hl:"What the gap reached",
+ uvTitle:"Where the risk spread",uvLead:"Green means the risk reached it. White means it stayed protected.",uvBtn:"💡 Show the ripple effect",gate:"Show where the risk from your choices spread.",
+ hot:grid([["notes","📝","Care notes"],["chart","📊","Fluid chart"],["plan","📋","Care plan"],["login","🔑","Logins"],["handover","🗣️","Handover"],["next","👥","Next shift"],["resident","🧓","The resident"],["inspector","🏛️","CQC inspector"],["family","👪","Family"]]),
+ steps:[
+  {title:"Mr Taylor fell at 3pm, and Rosa is writing the incident report at 6:30.",sit:"He was found on the floor by his bed, was checked, and was not hurt. Rosa has been busy since and is writing the report now. A colleague says to write that it happened because the unit was short staffed.",
+   lesson:"Record as soon as it is safe, stick to facts, and sign and time it. Do not guess causes or blame people.",
+   opts:[
+    O("best","Write the facts: what you saw, what he said, what was done, who was told and when. Add the time you are writing it, sign it, and do not include opinions about why.",3,2,1,0,[],"Facts that anyone can check, with a time and signature, make the report reliable. An honest late entry is acceptable. A guess is not."),
+    O("over","Write a three page statement covering your views on staffing, management and everything that went wrong that week.",3,3,2,0,[],"Records are for what happened, not for arguments. Concerns about staffing go to the manager through the right channel."),
+    O("short","Copy the wording from a colleague's report so your accounts match.",0,0,0,3,["notes","inspector","resident","family"],"Each person records what they saw and did. Copying makes it look like collusion and loses the detail only you know."),
+    O("flawed","Write that the fall happened because of staff shortages.",1,0,0,2,["notes","inspector"],"Nobody knows yet why he fell. An opinion about the cause in the record can mislead the investigation and unfairly blame people.")
+   ]},
+  {title:"Mrs Fraser refused fluids all afternoon.",sit:"She drank very little after lunch. Rosa knows the evening team need to keep encouraging her. She is about to leave the unit for handover and has not yet written it on the fluid chart or in the notes.",
+   lesson:"Record as you go, not just in handover. A spoken message is gone as soon as it is spoken.",
+   opts:[
+    O("best","Record it on the fluid chart and in the care notes now, then give the handover, pointing to the record so the next shift can see the amounts and times.",3,2,1,0,[],"The chart is the source of truth. A handover that points to the record stays accurate, and the next shift can act on facts."),
+    O("over","Photocopy the whole file for every member of the next shift so nobody misses anything.",3,3,3,0,[],"One record in one place is the point. Copies waste paper, go out of date and create a confidentiality risk."),
+    O("short","Just tell the next shift. They will remember.",0,0,0,3,["handover","chart","next","resident"],"Verbal messages get lost or changed. If nothing is written, there is nothing for the doctor, family or inspector to see."),
+    O("flawed","Write it in your own notebook to hand over to the next shift.",1,0,0,2,["handover","chart","next"],"A personal notebook is not part of the record and is not secure. Information should be written in the official records.")
+   ]},
+  {title:"Mr Taylor's care plan still says he is independent when walking.",sit:"After his fall, he now needs a walking frame and someone nearby. The care plan and falls risk assessment have not been updated. A new bank worker will use them tonight.",
+   lesson:"If someone's needs change, update the care plan and risk assessment now, date and sign it, and tell the team.",
+   opts:[
+    O("best","Update the care plan and falls risk assessment now with the date and your signature, tell the team and the manager, and note that it needs a formal review.",3,2,1,0,[],"The bank worker will rely on the plan. An up to date, dated and signed plan keeps Mr Taylor safe tonight."),
+    O("over","Stop everything this week and rewrite every resident's care plan from scratch.",3,3,3,0,[],"Update the plan that has changed. A full rewrite of every plan takes staff away from care and risks introducing errors."),
+    O("short","Leave it until the monthly review.",0,0,0,3,["plan","resident","next","inspector"],"Tonight's staff will follow an out of date plan. That is how people fall again."),
+    O("flawed","Stick a note on the front of the file saying he now needs a frame.",1,0,0,2,["plan","next","inspector"],"A sticky note can fall off and is not part of the legal record. The plan itself must be changed.")
+   ]},
+  {title:"A colleague asks to use Rosa's login to finish her entries.",sit:"Her own password has locked and the system admin is unavailable until morning. She has three residents' notes still to write. She says it will take ten minutes and she will write her initials after each entry.",
+   lesson:"Never share logins. Every entry must be traceable to the person who made it.",
+   opts:[
+    O("best","Say no kindly, tell her to ask the manager or IT to reset her password, and suggest she writes on paper, which she then enters under her own login.",3,2,1,0,[],"Shared logins break the audit trail. Her own login and notes keep the record accurate and traceable."),
+    O("over","Report her to the ICO and suspend her access to all systems for a month.",3,3,2,0,[],"She asked a question and you said no. Raise it with the manager, but this reaction is far too strong."),
+    O("short","Let her use it. It will save time.",0,0,0,3,["login","notes","inspector","resident"],"Entries will look as if Rosa wrote them. If there is ever a problem, nobody can say who did what."),
+    O("flawed","Let her use it but ask her to add her initials to each entry.",1,0,0,2,["login","notes","inspector"],"Initials are not a safeguard. The system still logs the wrong person, and sharing passwords may break the home's data protection rules.")
+   ]}
+ ],
+ end:{clean:"The handover is smooth, Mr Taylor's plan is up to date, and every entry can be traced to the right person. If an inspector reads the file tomorrow, it tells the true story.",
+      near:"The records are mostly sound, but a few entries are late or unclear. The manager reviews them and sets up a short documentation refresher.",
+      out:"Gaps and errors in the records cause a resident to miss care, and CQC finds the home's documentation poor. The home has to explain itself and put an action plan in place."}}];
+
+MODS.push(
+ {id:"fire",num:"05",track:"Fire safety",title:"Fire safety",game:"Zone Check",blurb:"A bin fire, an alarm, a wedged door and a new resident with no evacuation plan. Keep nineteen people safe on a night shift.",mins:"About 10 minutes",chars:FIRECH,
+  gloss:[["Call point","A manual fire alarm button, often a red box on the wall."],["Fire door","A door built to hold back smoke and flames for a set time. It only works if it is closed."],["PEEP","Personal emergency evacuation plan. It sets out how a person who needs help will be moved in an emergency."],["Horizontal evacuation","Moving people through a fire door to another fire compartment on the same floor before leaving the building."],["Fire compartment","A section of the building separated by fire resistant walls and doors."],["Roll call","Checking that everyone in the building is accounted for after an alarm."]],
+  rulesTitle:"Five fire safety rules to remember",rules:["Raise the alarm first, then protect people.","Treat every alarm as real until you know otherwise.","Fire doors must be shut. Never wedge them open.","Do not open a door to a fire zone to look. Check the panel and the plan.","Every resident needs a PEEP that the whole team can find."],short:"alarm first, doors shut, plan ready.",outTag:"Serious harm",howExtra:"Watch the status chip. It shows whether the fire risk is under control."},
+ {id:"docs",num:"06",track:"Records and governance",title:"Proper documentation",game:"On the Record",blurb:"An incident report, a handover, an out of date care plan and a shared login. Write records an inspector can trust.",mins:"About 10 minutes",chars:DOCCH,
+  gloss:[["Late entry","A dated and signed note added after the event. It records the time it was written, not the time it happened."],["Audit trail","The record of who did what and when, so entries can be traced to the person who made them."],["Care plan","A person-centred record of someone's needs, preferences and how staff will meet them."],["Risk assessment","A record of what could cause harm to someone and what is being done about it."],["Handover","Sharing information between shifts. It should point to the records, not replace them."],["Data protection","The rules that say personal information must be accurate, secure and only shared with permission."]],
+  rulesTitle:"Five documentation rules to remember",rules:["Write facts, with the date, time and your signature.","Record as you go. Do not rely on the handover alone.","Update plans and risk assessments the moment needs change.","Never share logins or write in unofficial notebooks.","Never delete or copy. Correct with a signed late entry."],short:"if it is not written down properly, it did not happen.",outTag:"Serious harm",howExtra:"Watch the status chip. It shows whether the record is reliable."}
+);
+MODS.forEach(function(m){m.chars.forEach(function(c){c.accent="#ffffff";c.pastel="#e9e9ec"})});
+/* appearance changes so looks match the mixed names */
+var LOOK={funmi:{skin:"#f2cfae",skinDk:"#e0b894",hair:"bun",hairC:"#a89878"},tola:{skin:"#e9c49b",skinDk:"#d8b085"},kemi:{skin:"#f4d6ba",skinDk:"#e4c2a2",hair:"short",hairC:"#d9b45a"}};
+MODS.forEach(function(m){m.chars.forEach(function(c){var l=LOOK[c.id];if(l)for(var k in l)c[k]=l[k]})});
+/* ================= ONE CARER, MANY SCENARIOS ================= */
+var OLD={food:FOODCH,med:MEDCH,safeg:SAFEGCH,emerg:EMERGCH,fire:FIRECH,docs:DOCCH};
+var DICT={};
+Object.keys(OLD).forEach(function(k){DICT[k]={};OLD[k].forEach(function(c){c.hot.forEach(function(h){DICT[k][h.id]=[h.i,h.l]})})});
+(function(o){for(var id in o)DICT.food[id]=o[id]})({cooked:["🍛","Cooked chicken"],rolls:["🥖","Bread rolls"],fruit:["🍎","Cut fruit"],bin:["🗑️","Bin lid"],towel:["🧽","Tea towel"],ham:["🥓","Cooked ham"],mince:["🥩","Raw mince"],juices:["💧","Meat juices"],shelf:["🧊","Fridge shelf"],leftovers:["🍚","Cooked rice"],defrost:["🥶","Frozen mince"],sink:["🚰","Sink"],money:["💷","Cash"],pen:["🖊️","Shared pen"],log:["📋","Delivery sheet"],delivery:["📦","Chilled food"],cake:["🎂","Birthday cake"],table:["🪑","Table"],cloth:["🧽","Cleaning cloth"],pudding:["🍮","Pudding"],gloves:["🧤","Your gloves"]});
+function gridN(a){
+  var n=a.length,r=Math.ceil(n/3),Y={1:[50],2:[30,70],3:[24,52,80],4:[16,39,62,85]},ys=Y[r]||Y[4],xs=[18,50,82],o=[];
+  for(var i=0;i<n;i++){var row=Math.floor(i/3),left=n-row*3,last=(row===r-1),x=xs[i%3];
+    if(last&&left===2)x=[34,66][i%3];if(last&&left===1)x=50;
+    o.push({id:a[i][0],i:a[i][1],l:a[i][2],x:x,y:ys[row]})}
+  return o;
+}
+var AV={name:"You",role:"Carer",skin:"#8a5a3a",skinDk:"#794b2d",hair:"short",hairC:"#15110f",top:"#2a7f86",outfit:"night",sleeve:"short",accent:"#ffffff",pastel:"#e9e9ec"};
+function SCN(k,o,steps,kit){
+  var ids=[];
+  steps.forEach(function(s){s.opts.forEach(function(p){p.hits.forEach(function(h){if(ids.indexOf(h)<0&&DICT[k][h])ids.push(h)})})});
+  var sc={bare:k!=="food"},a;
+  for(a in AV)sc[a]=AV[a];for(a in kit)sc[a]=kit[a];for(a in o)sc[a]=o[a];
+  sc.steps=steps;
+  sc.hot=gridN(ids.map(function(h){return [h,DICT[k][h][0],DICT[k][h][1]]}));
+  return sc;
+}
+function T(src,title,sit){return {title:title||src.title,sit:sit||src.sit,lesson:src.lesson,opts:src.opts}}
+var FA=FOODCH[0].steps,FJ=FOODCH[1].steps,FP=FOODCH[2].steps;
+var KF={gl:["Gloves are clean","Gloves are contaminated"],bn:["Your gloves are clean again.","Germs are now on your gloves."],mk:"🦠",hl:"Germs reached",uvTitle:"Where the germs travelled",uvLead:"Green means germs reached it. White means it stayed clean.",uvBtn:"💡 Switch on the UV light",gate:"Switch on the UV light to see where the germs travelled."};
+function kitOf(c){return {gl:c.gl,bn:c.bn,mk:c.mk,hl:c.hl,uvTitle:c.uvTitle,uvLead:c.uvLead,uvBtn:c.uvBtn,gate:c.gate}}
+
+/* ---------- 01 FOOD HYGIENE ---------- */
+var FOOD=[
+SCN("food",{id:"chicken",title:"Raw chicken, then the salad",blurb:"Your gloves touch raw chicken. What do they touch next?",scene:"kitchen",
+ sub:"You are helping with lunch in the care home kitchen.",
+ intro:["It is 11:15am. Lunch is chicken curry with a fresh side salad and bread rolls, and it goes out at 12:30.","You are wearing disposable gloves, so you feel well protected. Your job is to get lunch out without letting germs from the raw chicken reach food that will not be cooked again."],
+ facts:["Raw chicken can carry bacteria such as Campylobacter and Salmonella.","Salad, rolls and cut fruit are eaten without more cooking, so nothing will kill germs that land on them.","Gloves pick up germs from raw food just as hands do."],
+ end:{clean:"Lunch goes out at 12:30. The chicken is hot, the salad is fresh, and nobody is unwell because you changed gloves at every switch.",near:"Lunch goes out and nobody is ill, but the cook spots a few gloved habits that could have spread germs and runs a quick huddle.",out:"By the next morning, several residents have sickness and diarrhoea. The service starts its outbreak procedure and the trail leads back to lunch."}},
+ [T(FA[0],"Your gloves have just touched raw chicken.","You have finished portioning the raw chicken. The salad still needs slicing. Your gloves look clean, and the glove box is across the room."),
+  {title:"The cooked chicken is ready to go on the hot trolley.",sit:"You have just put the raw chicken packaging in the bin, wearing the same gloves. The cooked chicken is on a tray beside you and the trolley is waiting.",
+   lesson:"Gloves that have touched raw food or the bin are contaminated. Change them before you touch food that is cooked.",
+   opts:[
+    O("best","Take off your gloves and bin them, wash and dry your hands, put on fresh gloves, then lift the cooked chicken with clean tongs.",3,2,1,0,[],"Raw food and bin lids leave germs on gloves even when they look clean. A change, a handwash and clean tongs keep those germs off cooked food."),
+    O("over","Throw away the cooked chicken and cook a fresh batch, in case it was touched.",3,3,3,0,[],"The chicken has not been touched yet, so it is safe. Changing gloves is enough, and a fresh batch wastes food and time."),
+    O("short","Lift the chicken with the same gloves. They only touched packaging.",0,0,0,3,["bin","chicken","cooked","trolley"],"Packaging and bin lids carry germs from raw chicken. Your gloves pass them straight onto food that will not be cooked again."),
+    O("flawed","Wipe your gloves with a sanitiser wipe, then lift the chicken.",1,1,1,2,["bin","cooked"],"A wipe does not make a used glove clean. Dirt and grease reduce how well it works, and you still touched the bin lid.")]},
+  {title:"Lunch includes bread rolls and sliced melon.",sit:"Neither is cooked. Your gloves have touched the chicken tray and the bin, and you are about to portion the rolls and fruit.",
+   lesson:"Food that needs no cooking is the riskiest to touch with dirty gloves. Change gloves or use clean tongs.",
+   opts:[
+    O("best","Take your gloves off, wash your hands, and use clean tongs or fresh gloves to portion the rolls and fruit.",3,2,1,0,[],"Ready-to-eat food will not be cooked again, so any germs from raw chicken stay on it. Tongs or fresh gloves keep it clean."),
+    O("over","Skip the rolls and fruit today and serve only the curry.",3,2,2,0,[],"The rolls and fruit are fine to serve if you change gloves. Removing them takes away food residents enjoy."),
+    O("short","Portion the rolls and fruit with your current gloves, because you are in a hurry.",0,0,0,3,["rolls","fruit","chicken","bin"],"The gloves carry germs from the chicken tray and bin. The rolls and melon will be eaten raw, so nothing kills them."),
+    O("flawed","Pick the rolls up using a tea towel in your gloved hand.",1,0,0,2,["rolls","towel","fruit"],"A tea towel is reused and picks up germs from many surfaces. It spreads them onto the rolls instead of stopping them.")]}]
+,KF),
+
+SCN("food",{id:"fridge",title:"The fridge shelf",blurb:"Where you store raw meat decides what it can drip onto.",scene:"kitchen",
+ sub:"You are putting away the food delivery.",
+ intro:["It is 9:30am and the weekly delivery has just arrived. The kitchen fridge is shared by the cook, the care team and the night staff.","How food is stored matters as much as how it is cooked. Your job is to keep the fridge safe without wasting food."],
+ facts:["Raw meat juices can carry harmful bacteria.","Salad, fruit and cooked meats are not cooked again before eating.","Raw meat belongs on the bottom shelf in sealed containers, so it cannot touch or drip onto other food."],
+ end:{clean:"Raw food sits on the bottom shelf in sealed containers, ready-to-eat food is above, and the cook finds a tidy, labelled fridge at lunchtime.",near:"Nobody is ill, but the weekly check finds raw and cooked foods on the same shelf and the manager asks for a fridge reset.",out:"Juices from raw meat reach food that is not cooked again, and several residents become unwell."}},
+ [{title:"A delivery arrives and the fridge is nearly full.",sit:"You have raw chicken, raw mince, a tub of cooked ham and a bag of salad to put away. There is space on the top shelf and the middle shelf, and one clear spot on the bottom shelf.",
+   lesson:"Raw meat goes on the bottom shelf in sealed containers. Ready-to-eat food goes above it.",
+   opts:[
+    O("best","Put the raw chicken and mince in sealed containers on the bottom shelf, and keep the cooked ham and salad above them.",3,2,1,0,[],"Raw meat on the bottom shelf in a sealed container cannot touch or drip onto other food. Ready-to-eat food above is safe from any leaks."),
+    O("over","Throw out everything already in the fridge and wipe every shelf before putting anything away.",3,3,3,0,[],"The existing food is fine. This wastes food and time that proper storage would not need."),
+    O("short","Put the raw chicken on the top shelf so it is easy to reach and cook first.",0,0,0,3,["chicken","ham","salad","juices"],"Juices from raw chicken drip down onto everything below it, including food that will be eaten without cooking."),
+    O("flawed","Leave the raw chicken in its open tray on the middle shelf next to the cooked ham, covered loosely in cling film.",1,1,0,2,["chicken","ham","juices"],"Open packets next to ready-to-eat food are a risk, and cling film does not stop drips. Use a sealed container on the bottom shelf.")]},
+  {title:"A tray of raw mince is dripping onto a bowl of cut fruit.",sit:"Someone put raw mince in an open tray on the middle shelf. Juice has dripped onto a bowl of cut fruit on the shelf below, and onto the shelf.",
+   lesson:"Food that raw juices have touched cannot be made safe by washing. Throw it away and fix the storage.",
+   opts:[
+    O("best","Bin the fruit the juice touched, move the mince to a sealed container on the bottom shelf, clean the shelf with a suitable product, wash your hands, and tell the cook or manager.",3,2,1,0,[],"Raw juices on ready-to-eat food cannot be washed off safely. Fixing the storage and telling someone stops it happening again."),
+    O("over","Bin everything in the fridge and close the kitchen until it has been deep cleaned.",3,3,3,0,[],"Only the touched food needs to go. Closing the kitchen stops meals and wastes a lot of safe food."),
+    O("short","Wipe the drip off the bowl and put the fruit back.",0,0,0,3,["juices","fruit","mince","shelf"],"Germs in the juice have already reached the fruit, which will be eaten without being cooked."),
+    O("flawed","Rinse the fruit under the tap and serve it.",1,1,0,2,["fruit","juices","sink"],"Rinsing does not reliably remove germs, and it can spread them around the sink and onto your hands.")]},
+  {title:"Leftover cooked rice is still on the counter.",sit:"It has been out for about an hour. You want to keep it for tomorrow's fried rice, and the fridge is full.",
+   lesson:"Cool cooked food quickly, cover it, label it, and put it in the fridge within one to two hours, above the raw food.",
+   opts:[
+    O("best","Cool it quickly, cover and label it with the date, and put it in the fridge on a shelf above the raw meat.",3,2,1,0,[],"Cooked food should go in the fridge within one to two hours and be kept separate from raw food. Covering and labelling keeps it safe and clear."),
+    O("over","Throw it away and everything else cooked today, to be safe.",3,3,3,0,[],"Rice cooled and chilled promptly is fine. Binning it all wastes food."),
+    O("short","Leave it on the counter until the evening, when there is more room in the fridge.",0,0,0,3,["leftovers","chicken","shelf"],"Cooked rice left at room temperature gives bacteria time to grow. Get it in the fridge within one to two hours."),
+    O("flawed","Put it in the fridge straight away, hot and uncovered, on the bottom shelf next to the raw meat.",1,0,0,2,["leftovers","shelf","chicken"],"Hot uncovered food warms the fridge, and next to raw meat it can pick up germs. Cool it and cover it first.")]}]
+,KF),
+
+SCN("food",{id:"defrost",title:"Defrosting the mince",blurb:"The easy way to defrost is often the unsafe way.",scene:"kitchen",
+ sub:"You are planning tomorrow's lunch.",
+ intro:["It is 4pm. Tomorrow's lunch is spaghetti bolognese for 20 residents, and the mince is a frozen block in the freezer.","Defrosting looks simple, which is why it is easy to get wrong. Your job is to get the mince ready on time without growing germs."],
+ facts:["Harmful bacteria grow in food that is not defrosted properly.","Defrosting in the fridge overnight keeps food out of the temperature range where bacteria grow fastest.","Juice from defrosting meat can drip onto other food."],
+ end:{clean:"The mince is fully defrosted, cooked properly, and lunch is on time. Nobody is unwell.",near:"Nobody is ill, but a rushed defrost meant lunch ran late and the cook asks for a defrosting plan.",out:"Mince that was not safely defrosted and cooked properly reaches the table, and residents become unwell."}},
+ [{title:"Tomorrow's mince is frozen solid.",sit:"It is 4pm and lunch is at 12 tomorrow. You need to decide how and when to defrost the block.",
+   lesson:"Defrost in the fridge overnight, covered or sealed, on the bottom shelf, so juices cannot drip.",
+   opts:[
+    O("best","Move it to the fridge now in a covered, sealed container on the bottom shelf so it defrosts overnight.",3,2,1,0,[],"Defrosting in the fridge overnight keeps the meat cold, and a sealed container on the bottom shelf stops juices dripping on other food."),
+    O("over","Bin the frozen mince and order fresh mince for tomorrow.",3,3,3,0,[],"Frozen mince is perfectly fine if defrosted safely. Buying fresh wastes money and stock."),
+    O("short","Leave it on the worktop overnight to defrost.",0,0,0,3,["defrost","mince","juices"],"Meat left at room temperature for hours gives bacteria time to grow, especially on the outside while the middle is still frozen."),
+    O("flawed","Leave it in a sink of warm water overnight.",1,1,0,2,["defrost","sink","juices"],"Warm water brings the outside of the meat into the temperature range where bacteria multiply, and the water spreads germs around the sink.")]},
+  {title:"It is 10am and the mince is still partly frozen in the middle.",sit:"A large block did not defrost fully overnight. Lunch is at 12, and cooking will take time.",
+   lesson:"Only defrost in a microwave if you cook the food immediately afterwards. Otherwise change the plan.",
+   opts:[
+    O("best","Defrost it in the microwave on the defrost setting and cook it straight away, or swap to a meal you already have defrosted.",3,2,1,0,[],"Microwave defrosting is safe if you cook the food straight away. Switching to a different meal is also fine."),
+    O("over","Bin the mince and cancel lunch.",3,3,3,0,[],"There are safe options that keep lunch on time. Cancelling is far more than needed."),
+    O("short","Cook it as it is on a high heat. It will thaw as it cooks.",0,0,0,3,["mince","defrost","cooked"],"A partly frozen block can stay raw in the middle even when the outside looks cooked."),
+    O("flawed","Leave it in a bowl of warm water on the counter for an hour.",1,1,0,2,["defrost","sink","mince"],"Warm water brings the outside of the meat to a temperature where bacteria multiply. Use the microwave and cook it at once.")]},
+  {title:"Juice has pooled on the bottom shelf.",sit:"The mince container leaked a little while it defrosted, and juice has run onto the shelf. You are wearing gloves.",
+   lesson:"Raw meat juice contaminates anything it touches, including your gloves. Clean it up properly, then reset your hands and gloves.",
+   opts:[
+    O("best","Wipe up the juice with paper towel and bin it, take off your gloves and wash your hands, then clean the shelf with a suitable product.",3,2,1,0,[],"Paper towel is single use and your gloves are now contaminated. Washing and cleaning the shelf stops germs spreading."),
+    O("over","Empty the whole fridge, throw away everything and deep clean it before lunch.",3,3,3,0,[],"The juice only touched one shelf. Emptying the fridge wastes food and time."),
+    O("short","Leave it. It is the bottom shelf, so nothing will touch it.",0,0,0,3,["juices","shelf","gloves"],"Juice left on a shelf spreads to anything placed there, and to hands and gloves that touch the shelf."),
+    O("flawed","Wipe it with the dishcloth you use for the worktop.",1,0,0,2,["juices","towel","shelf","gloves"],"A cloth used on other surfaces spreads raw meat germs everywhere it goes next.")]}]
+,KF),
+
+SCN("food",{id:"force",title:"A snack at 2am",blurb:"",scene:"night",
+ sub:"You are making a snack on a night shift.",
+ intro:["It is 2am. A resident cannot sleep and has asked for a sandwich. You are on your own in the kitchenette, and there is a lot to do overnight.","Gloves feel like a shortcut to safe food. Your job is to find out where that thinking goes wrong."],
+ facts:["Gloves do not clean your hands.","A sandwich is ready-to-eat, so nothing cooks away germs it picks up.","The same pair of gloves collects germs from everything it touches."],
+ end:{clean:"The resident enjoys a safe sandwich and settles back to sleep, because you washed first and used fresh gloves for the task.",near:"Nobody is ill, but the morning team finds spare gloves in a pocket and a few habits worth a chat.",out:"Two residents become unwell. The home traces it to night-time food handling and gloves that were not changed."}},
+ [T(FP[0],"You reach the kitchenette with unwashed hands.","You have not washed your hands since your last round. A colleague says it is quicker to put gloves on, because the gloves will protect the food."),
+  T(FP[1],"You keep spare gloves in your tunic pocket.","To save time on nights, you keep a few pairs in your pocket along with your phone and keys. You grab a pair to make the sandwich."),
+  T(FP[2],"You realise you have had the same gloves on for a long time.","You have worn the same pair since a pad change at 1:40am, then did the kettle, the fridge and the bread. They are not torn, so they feel fine.")]
+,KF),
+
+SCN("food",{id:"phone",title:"The phone in your pocket",blurb:"Phones go everywhere with us, including the toilet.",scene:"kitchen",
+ sub:"You are making sandwiches for afternoon tea.",
+ intro:["It is mid-afternoon and you are preparing sandwiches for tea. Your phone is in your pocket, on the counter, or in your hand, and you use it for the rota, calls and recipes.","Phones go everywhere with us, including the toilet. Your job is to keep that phone away from the food."],
+ facts:["Phones are touched constantly and rarely cleaned.","Gloves that touch a phone are no longer clean.","Wearing gloves does not make a phone safe to touch around food."],
+ end:{clean:"Tea goes out on time and the sandwiches are safe, because the phone and your gloves never met.",near:"Nobody is ill, but the cook notices phones on the worktop and asks for a phone-free food area.",out:"A few residents become unwell after tea, and the home's investigation finds phones in the food area."}},
+ [T(FA[1],"Your phone rings in the middle of prep.","It is the shift leader asking when tea will be ready. The phone is in your pocket and your gloved hands are busy with the sandwiches."),
+  {title:"You used your phone in the staff toilet earlier.",sit:"You watched a video on your break and put the phone back in your pocket. Now you are about to start making sandwiches.",
+   lesson:"Treat your phone as dirty. Keep it out of the food area and wash your hands after touching it.",
+   opts:[
+    O("best","Leave the phone in your locker or bag, wash your hands with soap and water, then start the sandwiches.",3,2,1,0,[],"A phone used in the toilet picks up germs and stays dirty. Keeping it away and washing your hands stops those germs reaching food."),
+    O("over","Ask the manager to ban all phones from the building and confiscate them at the door.",3,3,3,0,[],"The problem is phones in the food area. A rule for that area solves it without banning phones everywhere."),
+    O("short","Put on gloves and keep the phone in your pocket. The gloves will protect the food.",0,0,0,3,["phone","pocket","sandwich","gloves"],"Your hands touched the phone before you put the gloves on, and the phone is in your pocket beside the food. Gloves do not clean what is already on your hands."),
+    O("flawed","Wipe the phone on your tunic and carry on.",1,0,0,2,["phone","apron","sandwich"],"A tunic does not clean a phone. It moves germs onto your clothes, which touch food and your hands.")]},
+  {title:"You are following a recipe on your phone.",sit:"You are wearing gloves, and the phone is propped by the chopping board. The screen has gone dark and you need to wake it up.",
+   lesson:"If you touch a phone, your gloves are contaminated. Use a printed recipe, or wash and re-glove after touching it.",
+   opts:[
+    O("best","Use a printed copy of the recipe. If you must touch the phone, take off your gloves, wash your hands, and put on fresh gloves afterwards.",3,2,1,0,[],"A printed recipe avoids the problem. If you touch the phone you reset your hands and gloves before touching food again."),
+    O("over","Stop cooking and deep clean the whole kitchen because the phone is in the food area.",3,3,3,0,[],"Moving the phone and washing your hands is enough. Deep cleaning the kitchen wastes time."),
+    O("short","Tap the screen with your gloved finger and carry on cooking.",0,0,0,3,["phone","board","salad","gloves"],"Your gloves now carry germs from the phone onto the board and the salad."),
+    O("flawed","Tap the screen with your knuckle so your fingertips stay clean.",1,0,0,2,["phone","board","gloves"],"Your knuckle and glove still touch the phone. Germs transfer to the glove and then to the food.")]}]
+,KF),
+
+SCN("food",{id:"cash",title:"Cash, pens and paperwork",blurb:"Money, pens and cloths are touched by lots of people.",scene:"dining",
+ sub:"You are serving a birthday tea.",
+ intro:["It is 3pm and a birthday tea is under way. Visitors are arriving, a delivery has come, and you are wearing gloves for serving.","Money, pens and cloths are handled by lots of people. Your job is to keep them from contaminating the cake and the pudding."],
+ facts:["Cash is handled by many people and is not clean.","A shared pen is a high touch point.","Gloves that touch these items can pass germs on to food that will not be cooked again."],
+ end:{clean:"The tea goes well and the cake is safe to eat, because your gloves never carried germs from cash, pens or cloths.",near:"Nobody is ill, but the manager sees gloves used for cash and paperwork and runs a reminder on high touch points.",out:"Several people who ate at the tea become unwell, and the investigation finds germs passed on from gloved hands."}},
+ [{title:"A visitor hands you cash while you are cutting the cake.",sit:"You are wearing gloves and about to cut a birthday cake. A relative holds out a £20 note to put toward the hairdresser.",
+   lesson:"Cash is a high touch point. Reset your gloves and wash your hands before touching food that is not cooked again.",
+   opts:[
+    O("best","Ask the visitor to wait, take off your gloves, take the money, wash your hands, and put on fresh gloves before cutting the cake.",3,2,1,0,[],"Money is handled by many people. Washing and re-gloving after touching it stops germs reaching the cake."),
+    O("over","Refuse to take any cash and send the visitor to the manager.",3,3,2,0,[],"You can take the money safely. Sending a visitor away adds work and is unfriendly."),
+    O("short","Take the cash with your gloved hand, put it in your pocket and carry on cutting the cake.",0,0,0,3,["money","pocket","cake","gloves"],"Your gloves now carry germs from the money and your pocket, and the cake will not be cooked again."),
+    O("flawed","Take the money, wipe your gloved hand on your apron, and carry on.",1,0,0,2,["money","apron","cake"],"The apron is not clean. Wiping gloves on it just moves germs around.")]},
+  {title:"The delivery sheet needs signing.",sit:"A delivery of chilled food has arrived. You need to check the temperature and sign the sheet using the pen on the clipboard that everyone shares. You are wearing gloves.",
+   lesson:"A shared pen is a high touch point. Sign with clean hands, then wash again before touching food.",
+   opts:[
+    O("best","Take off your gloves, wash your hands, sign the sheet, wash again, then put on fresh gloves before touching the food.",3,2,1,0,[],"The pen has been handled by many people. Resetting before and after keeps germs away from the food."),
+    O("over","Wipe every pen in the building with disinfectant before you sign anything.",3,3,3,0,[],"A good wash after signing is enough. Wiping every pen takes time you need for the delivery."),
+    O("short","Sign with your gloved hand and carry on putting away the chilled food.",0,0,0,3,["pen","log","delivery","gloves"],"Your gloves pick up germs from the pen and pass them onto the chilled food."),
+    O("flawed","Sign with your gloved hand, then wipe the pen on your apron.",1,0,0,2,["pen","apron","delivery"],"You still touched the pen with the gloves and now the apron has germs. It does not make the gloves clean.")]},
+  {title:"You wipe the tables, then serve the pudding.",sit:"The tea is almost over. You are wearing the same gloves and have just wiped the tables with a cloth. A cooked pudding is waiting to be served.",
+   lesson:"Cleaning cloths and tables carry germs. Change gloves and wash your hands before you touch food that is not cooked again.",
+   opts:[
+    O("best","Put the cloth away, take off your gloves, wash your hands, and put on fresh gloves before serving the pudding.",3,2,1,0,[],"The cloth and the tables carry germs from many hands. Resetting your gloves keeps them off the pudding."),
+    O("over","Ask someone else to serve the pudding and leave the room until the tables dry.",3,3,2,0,[],"You can serve safely after a glove change and a wash. This leaves guests waiting."),
+    O("short","Serve the pudding with the same gloves. They only touched a cloth.",0,0,0,3,["table","cloth","pudding","gloves"],"Cloths and tables carry germs, and your gloves pass them straight onto the pudding."),
+    O("flawed","Shake the gloves off over the bin and put the same pair back on.",1,0,0,2,["cloth","pudding","gloves"],"Shaking gloves does not clean them, and putting a used pair back on spreads germs further.")]}]
+,KF),
+
+SCN("food",{id:"lunch",title:"Lunchtime on the unit",blurb:"From personal care to mealtimes without carrying germs across.",scene:"dining",
+ sub:"You are helping with the lunchtime meal service.",
+ intro:["It is 12:25pm. You have just helped Mrs Fraser with personal care and are heading into the dining room to serve lunch.","You are wearing the apron and gloves from that task and feel well protected. A call bell is ringing and the hot trolley has just arrived. Your job is to serve everyone safely."],
+ facts:["Gloves and aprons from personal care must never go near food.","Trolley handles, call bells and door handles are touched by many people every day.","Several residents need help to eat, including people who are unwell or frail."],
+ end:{clean:"Everyone is served hot food, the call bells are answered, and your gloves never carried germs from one task to the next.",near:"Lunch is served and nobody is ill, but the team leader spots a few habits that could have spread germs and holds a quick huddle.",out:"Over the next two days, several residents develop stomach upsets. Infection control traces the spread back to meals and shared touch points."}},
+ [T(FJ[0],"You are still wearing gloves from personal care.","You have just helped Mrs Fraser with continence care. Lunch is starting and the residents are waiting, so you open the dining room door."),
+  T(FJ[1],"A call bell is ringing while you plate lunch.","Mr Hussain has pressed his call bell and the panel is flashing. You have fresh gloves on and are holding a plate of toast."),
+  T(FJ[2],"You need to wheel the hot trolley between tables.","Every member of staff on every shift pushes that trolley by the same handle. You have clean gloves, and after pushing it you will go back to handling bread and toast."),
+  T(FJ[3],"Mrs Fraser and Mr Hussain both need help eating.","You have been helping Mrs Fraser cut up her chicken. Mr Hussain at the next table needs help too. Your gloves are on, and the fork you used for Mrs Fraser is on the tray.")]
+,KF)
+];
+
+/* ---------- 02 to 06: regrouped around one carer ---------- */
+function PAIR(k,old,i,j,title,sit,idx){return old.steps.slice(i,j)}
+var MS=MEDCH[0].steps,SS=SAFEGCH[0].steps,ES=EMERGCH[0].steps,FS=FIRECH[0].steps,DS=DOCCH[0].steps;
+var MED=[
+SCN("med",{id:"round",title:"The morning round",blurb:"A refusal and an interruption on the medicines round.",scene:"medroom",sub:"You are on the 8am medicines round.",
+ intro:["It is 8am. You are the senior carer on shift and have 12 residents to give medicines to before breakfast finishes.","Medicines are one of the biggest sources of harm in care, and one of the easiest places to take a shortcut. Your job is to do the round safely without letting it take over the whole morning."],
+ facts:["Every dose is recorded on the medication administration record (MAR) and the record is a legal document.","Residents with capacity are allowed to refuse their medicines.","Errors and near misses are reported so the home can learn from them."],
+ end:{clean:"The round finishes on time and every dose on the MAR matches what was given.",near:"Nobody comes to harm, but the manager finds entries that do not match and runs a medicines audit.",out:"A medicines error reaches a resident and needs hospital advice. The home has to report it and explain what happened."}},
+ [T(MS[0]),T(MS[1],"Someone interrupts you halfway through the round.","Mr Hussain's tablets are in the pot on the tray. A carer asks you to look at a worried visitor and a call bell is ringing. The next three residents are waiting.")],kitOf(MEDCH[0])),
+SCN("med",{id:"gaps",title:"Gaps and requests",blurb:"A missing signature and a well-meant supplement from family.",scene:"room",sub:"You are checking records and meeting families.",
+ intro:["It is later that morning. You are checking the medication records and meeting families on the unit.","Gaps in records and well-meant requests from families can both put people at risk. Your job is to handle both openly and safely."],
+ facts:["The MAR is a legal record.","Errors are reported so the home can learn from them.","Anything added to a person's medicines needs a prescriber or pharmacist check."],
+ end:{clean:"The pharmacist advises quickly, the supplement is checked, and Mrs Novak is well. You handled both openly.",near:"Nobody is harmed, but the gap was reported late and a medicines review is needed.",out:"A missed dose and an unchecked supplement both reach a resident, and the home has to report and review."}},
+ [T(MS[2],"You spot a gap in last night's MAR."),T(MS[3],null,"Mrs Novak's daughter hands you a bottle and asks if her mum can have one every morning with her other medicines. It is natural, she says, so it cannot do any harm.")],kitOf(MEDCH[0]))
+];
+var SAFEG=[
+SCN("safeg",{id:"confide",title:"A resident confides in you",blurb:"A whispered worry and an unexplained bruise.",scene:"room",sub:"You are on a day shift and keep noticing things that do not feel right.",
+ intro:["You have worked at the home for six months and residents trust you, which means they sometimes tell you things they tell nobody else.","Two moments today need you to decide whether to speak up. Your job is to protect the people you support."],
+ facts:["Safeguarding is everyone's job, whatever their role.","A concern does not have to be proven before it is reported.","What you record and share affects dignity, privacy and trust."],
+ end:{clean:"Mrs Clarke is safer and the bruise is recorded, so a trained person can decide what to do. Your six months of trust with residents is well placed.",near:"Nobody is harmed, but what you saw reached the right people late, and the manager runs a refresher on reporting.",out:"A concern was not reported in time. A resident has been left exposed and the home faces a safeguarding enquiry."}},
+ [T(SS[0],"Mrs Clarke whispers a worry while you help her dress.","She says one of the night staff handles her roughly when nobody is watching. Then she asks you not to tell anyone."),T(SS[1],"You notice a bruise on Mr Reid's upper arm.")],kitOf(SAFEGCH[0])),
+SCN("safeg",{id:"notes",title:"Notes and photos",blurb:"A photo in a group chat and a note that needs correcting.",scene:"office",sub:"You are finishing notes and a birthday photo is circulating.",
+ intro:["It is the afternoon. There is a birthday in the lounge, and notes to finish before the end of your shift.","What staff write and share, including photos, affects dignity, privacy and trust. Your job is to get both right."],
+ facts:["Photos of residents need consent.","Records are factual and permanent.","Mistakes are corrected with a signed late entry."],
+ end:{clean:"The photo is taken down, the notes tell the truth, and Mrs Bailey is treated with dignity.",near:"Nobody is harmed, but the photo stayed up too long and the manager reminds staff about consent and records.",out:"Mrs Bailey's photo and an unfair note spread, and the home faces a complaint and a data breach investigation."}},
+ [T(SS[2]),T(SS[3],"You realise your own note about Mrs Bailey was unfair.","Yesterday you wrote that Mrs Bailey was \"grumpy and attention seeking all morning.\" Reading it back, you can see that she rang four times because she felt lonely.")],kitOf(SAFEGCH[0]))
+];
+var EMERG=[
+SCN("emerg",{id:"fall",title:"A fall and a phone call",blurb:"Make people safe first, then tell the right people.",scene:"corridor",sub:"You are the team leader on a day that keeps escalating.",
+ intro:["You are leading the shift with six staff. First a resident falls, and later his daughter rings.","Your job is to make people safe first, then record, then tell the right people."],
+ facts:["A team leader's first job in an emergency is to make people safe.","A person who may have broken a bone should not be moved until assessed.","Families need to hear the truth promptly."],
+ end:{clean:"Mr Walsh is treated quickly, and his daughter knows what is happening. You kept the team calm.",near:"Nobody is seriously harmed, but some decisions were late and the manager holds a debrief.",out:"Delays and shortcuts cause real harm, and the home has to report it and explain what went wrong."}},
+ [T(ES[0],null,"He is awake and says his hip really hurts. You are first on the scene. Two carers are further along the corridor."),T(ES[3])],kitOf(EMERGCH[0])),
+SCN("emerg",{id:"lunchtime",title:"A busy lunchtime",blurb:"One resident chokes while a stomach bug spreads on another corridor.",scene:"dining",sub:"You are leading a busy lunchtime.",
+ intro:["Lunch is in full swing. Two things happen at once: one resident starts to choke, and two others on Corridor 2 have a stomach bug.","Your job is to keep calm and use the procedures the team already has."],
+ facts:["A strong cough is the best way to clear a blocked airway.","Alcohol gel does not reliably kill norovirus.","Outbreaks need to be reported."],
+ end:{clean:"Mr Taylor's cough clears his airway, and the bug stops at two cases. You kept control.",near:"Nobody is seriously harmed, but some steps were late and the team reviews the choking and outbreak procedures.",out:"A delayed response causes real harm, and the home has to report notifiable events."}},
+ [T(ES[1],null,"He is eating shepherd's pie when he begins to cough. His eyes are watering and his face is red, but he can still breathe and make a little noise. You are two tables away."),T(ES[2],null,"It started last night. Breakfast tomorrow is already planned and the team is stretched. You need to act before it spreads.")],kitOf(EMERGCH[0]))
+];
+var FIRE=[
+SCN("fire",{id:"night",title:"The night fire",blurb:"A bin fire in the lounge, then an alarm.",scene:"corridor",sub:"You are on a night shift with two colleagues and nineteen residents.",
+ intro:["It is 2:10am. The home is quiet and most residents are asleep. You are one of three staff on shift.","Your job is to keep everyone safe using the plan the home has already made."],
+ facts:["Residents who are asleep, frail or in wheelchairs cannot always get themselves out.","Fire doors hold back smoke and flames for a set time, but only if they are shut.","Every resident should have a personal emergency evacuation plan (PEEP)."],
+ end:{clean:"The small fire is out before it spreads, and everyone is accounted for.",near:"Nobody is harmed, but a few things were late and the team has a fire plan refresher.",out:"A fire spreads further than it should, and people are put at risk."}},
+ [T(FS[0],"You find a small fire in a bin in the lounge."),T(FS[1],null,"Zone 2 is the east wing. Several residents there need help to move. Last week the alarm went off because of burnt toast. You are at the panel.")],kitOf(FIRECH[0])),
+SCN("fire",{id:"doors",title:"Fire doors and plans",blurb:"A wedged door and a new resident with no evacuation plan.",scene:"corridor",sub:"You are doing your fire safety checks on the unit.",
+ intro:["It is a quiet afternoon, and you are doing your fire safety checks.","Fire safety in care is about people who cannot move quickly and doors that need to stay closed. Your job is to spot what could go wrong before it does."],
+ facts:["Fire doors only work when closed.","Every resident should have a personal emergency evacuation plan (PEEP).","A plan that nobody can find is not a plan."],
+ end:{clean:"Doors are shut, Mr Singh has a PEEP, and the next fire inspection is clean.",near:"Nobody is harmed, but the fire risk assessment is reviewed after gaps are found.",out:"A fire exposes the gaps. The fire service investigates and the home has to explain its plans."}},
+ [T(FS[2]),T(FS[3])],kitOf(FIRECH[0]))
+];
+var DOCS=[
+SCN("docs",{id:"shift",title:"End of shift records",blurb:"An incident report and a handover.",scene:"office",sub:"You are finishing a shift with records to write.",
+ intro:["It is 6:30pm. You have been on shift since 8am and have a handover at 7.","If it is not written down, it did not happen. But what you write, when you write it and how you hand it over all matter."],
+ facts:["Records are legal documents.","Good records are factual, timely, signed and stored securely.","Poor records are a common finding in CQC inspections."],
+ end:{clean:"The handover is smooth and your records are factual, timed and signed.",near:"The records are mostly sound, but a few entries are late or unclear.",out:"Gaps and errors cause a resident to miss care, and CQC finds poor documentation."}},
+ [T(DS[0],"Mr Taylor fell at 3pm, and you are writing the incident report at 6:30.","He was found on the floor by his bed, was checked, and was not hurt. You have been busy since and are writing the report now. A colleague says to write that it happened because the unit was short staffed."),T(DS[1],null,"She drank very little after lunch. You know the evening team need to keep encouraging her. You are about to leave the unit for handover and have not yet written it on the fluid chart or in the notes.")],kitOf(DOCCH[0])),
+SCN("docs",{id:"plans",title:"Plans and logins",blurb:"An out-of-date care plan and a request to share your login.",scene:"office",sub:"You have two more records to sort before you leave.",
+ intro:["The shift is over, but two more records need your attention.","Records are legal documents. Your job is to keep them accurate, up to date and traceable to the right person."],
+ facts:["Care plans and risk assessments must reflect what a person needs now.","Every entry must be traceable to the person who made it.","Shared logins break the audit trail."],
+ end:{clean:"Mr Taylor's plan is up to date and every entry can be traced to the right person.",near:"Mostly sound, but a late update and a login question mean the manager reviews your process.",out:"An out-of-date plan and a shared login lead to a missed need and a records investigation."}},
+ [T(DS[2]),T(DS[3],"A colleague asks to use your login to finish her entries.")],kitOf(DOCCH[0]))
+];
+var SCS={food:FOOD,med:MED,safeg:SAFEG,emerg:EMERG,fire:FIRE,docs:DOCS};
+var BLURB={food:"Gloves feel safe, but germs hitch a ride on everyday habits. Work through seven scenarios in the kitchen and on the unit.",med:"A refusal, an interruption, a gap on the record and a family request. Keep the round safe without letting it take over the morning.",safeg:"A whispered worry, an unexplained bruise, a photo in a group chat and a note that needs correcting.",emerg:"A fall, a phone call, someone choking and a stomach bug. Make people safe first, then tell the right people.",fire:"A bin fire, an alarm, a wedged door and a new resident with no evacuation plan.",docs:"An incident report, a handover, an out-of-date care plan and a shared login. Write records an inspector can trust."};
+MODS.forEach(function(m){m.chars=SCS[m.id];m.blurb=BLURB[m.id];m.mins=m.chars.length>3?"About 45 minutes":"About 10 minutes"});
+MODS[0].howExtra="Watch your gloves. If they become contaminated, germs travel with you.";
+
+var INTRO={
+chicken:[["It is 11:15am. Lunch is chicken curry with a side salad, bread rolls and sliced melon, and it goes out at 12:30.","You are wearing disposable gloves and have just finished portioning the raw chicken."],"What do you do next?"],
+fridge:[["It is 9:30am and the weekly delivery has just arrived. You have raw chicken, minced meat, raw beef, bread, sausages, cooked chicken breast and salads."],"How do you store them?"],
+defrost:[["It is 4pm. Tomorrow's lunch is spaghetti bolognese for 20 residents, served at 12. The mince is a frozen block in the freezer."],"What do you do with the mince?"],
+force:[["It is 2am and you are on your own. A resident cannot sleep and has asked for a sandwich.","You have been busy since the start of the shift, and you head to the kitchenette."],"How do you get the sandwich ready?"],
+phone:[["It is mid-afternoon and you are preparing sandwiches for tea. You are wearing gloves, and your phone rings in your pocket. It is the shift leader calling you."],"What do you do?"],
+cash:[["It is 3pm and a birthday tea is under way in the dining room. Visitors are arriving and a food delivery has just come. You are wearing gloves for serving."],"How do you handle the next hour?"],
+lunch:[["It is 12:25pm. You have just helped Mrs Fraser with personal care and are heading into the dining room to serve lunch.","A call bell is ringing and the hot trolley has just arrived."],"How do you get lunch served?"],
+round:[["It is 8am. You are the senior carer on shift, with 12 residents to give medicines to before breakfast finishes."],"How do you run the round?"],
+gaps:[["It is later that morning. You are checking medication records and meeting families on the unit."],"What do you do?"],
+confide:[["You have worked at the home for six months and residents trust you. Today, two moments make you stop and think."],"What do you do?"],
+notes:[["It is the afternoon. There is a birthday in the lounge, and you have notes to finish before the end of your shift."],"What do you do?"],
+fall:[["You are leading the shift with six staff. First a resident falls, and later his daughter rings."],"What do you do first?"],
+lunchtime:[["Lunch is in full swing. One resident starts to cough while eating, and two others on Corridor 2 have a stomach bug."],"What do you do?"],
+night:[["It is 2:10am. The home is quiet and most residents are asleep. You are one of three staff on shift, with nineteen residents."],"What do you do?"],
+doors:[["It is a quiet afternoon, and you are doing your fire safety checks on the unit."],"What do you do?"],
+shift:[["It is 6:30pm. You have been on shift since 8am, there is a handover at 7, and you still have records to write."],"What do you do?"],
+plans:[["The shift is over, but two more records need your attention before you leave."],"What do you do?"]};
+MODS.forEach(function(m){m.chars.forEach(function(c){var x=INTRO[c.id];c.intro=x[0];c.ask=x[1];c.facts=[]})});
+/* ================= STATE ================= */
+var S={screen:'hub',mi:0,ci:0,step:0,order:[],pick:null,m:{s:0,t:0,c:0,risk:0},glove:'clean',trail:[],res:null,done:{},modal:null};
+var mod=function(){return MODS[S.mi]};
+var ch=function(){return mod().chars[S.ci]};
+var cur=function(){return ch().steps[S.step]};
+var dkey=function(m,c){return m.id+'/'+c.id};
+
+/* ================= CONFETTI ================= */
+var cvs=$('#confetti'),cx=cvs.getContext('2d'),parts=[],raf=null;
+function size(){cvs.width=innerWidth;cvs.height=innerHeight}
+addEventListener('resize',size);size();
+function confetti(n,p){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  var cols=['#ffffff','#d9d9de','#9a9aa0','#7dff6a'];
+  for(var i=0;i<n;i++)parts.push({x:innerWidth/2+(Math.random()-.5)*innerWidth*.5,y:innerHeight*.35,vx:(Math.random()-.5)*14*p,vy:-Math.random()*13*p-4,r:4+Math.random()*6,c:cols[i%cols.length],rot:Math.random()*6,vr:(Math.random()-.5)*.3,l:0});
+  if(!raf)raf=requestAnimationFrame(stepC);
+}
+function stepC(){
+  cx.clearRect(0,0,cvs.width,cvs.height);
+  parts=parts.filter(function(q){return q.y<cvs.height+30&&q.l<260});
+  parts.forEach(function(q){q.l++;q.vy+=.3;q.x+=q.vx;q.y+=q.vy;q.vx*=.99;q.rot+=q.vr;cx.save();cx.translate(q.x,q.y);cx.rotate(q.rot);cx.fillStyle=q.c;cx.fillRect(-q.r,-q.r/2,q.r*2,q.r);cx.restore()});
+  if(parts.length)raf=requestAnimationFrame(stepC);else{raf=null;cx.clearRect(0,0,cvs.width,cvs.height)}
+}
+
+/* ================= SCREENS ================= */
+function pips(n,col){var o='';for(var i=0;i<3;i++)o+='<span class="pip'+(i<n?' on':'')+'" style="--pc:'+col+'"></span>';return '<span class="pips" aria-hidden="true">'+o+'</span>'}
+function stars(n){return '★★★'.slice(0,n)+'☆☆☆'.slice(0,3-n)}
+function modStars(m){var t=0,got=0;m.chars.forEach(function(c){var d=S.done[dkey(m,c)];if(d!==undefined){t++;got+=d}});return {played:t,total:m.chars.length,got:got}}
+function arrow(){return '<span class="circ" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>'}
+
+function hud(){
+  var c=ch(),d=S.glove==='dirty',m=S.m;
+  return '<div class="meters" aria-label="Scores"><div class="meter m-s">🛡️ Safety <b>'+m.s+'</b></div><div class="meter m-t">⏱️ Pace <b>'+m.t+'</b></div><div class="meter m-c">🧰 Resources <b>'+m.c+'</b></div><div class="gstat '+(d?'bad':'ok')+'"><span>'+(d?c.mk:'✓')+'</span>'+c.gl[d?1:0]+'</div></div>';
+}
+function topbar(){
+  var c=ch(),M=mod();
+  return '<div class="top"><div><div class="lab">'+esc(M.title)+' &nbsp;·&nbsp; Scenario '+(S.ci+1)+' of '+M.chars.length+'</div><h2>'+esc(c.sub)+'</h2></div>'+hud()+'</div>';
+}
+function tools(){
+  var M=mod();
+  return '<div class="toolrow"><button class="btn ghost sm" data-a="sit">The situation</button><button class="btn ghost sm" data-a="gloss">Glossary</button>'+'<button class="btn ghost sm" data-a="chars">Choose scenario</button>'+'<button class="btn ghost sm" data-a="hub">All modules</button></div>';
+}
+
+function rHub(){
+  var tiles=MODS.map(function(M,i){
+    var st=modStars(M),prog='<span class="prog">'+(st.played?st.played+' of '+st.total+' played &nbsp;'+'★'.repeat(st.got):st.total+' scenarios · '+M.mins)+'</span>';
+    return '<button class="tile" data-a="pick-mod" data-i="'+i+'" aria-label="Open '+esc(M.title)+'"><span class="num">'+M.num+'</span><span class="eyebrow">'+esc(M.track)+'</span><span class="tt">'+esc(M.title)+'</span><span class="tg">'+esc(M.game)+'</span><span class="tb">'+esc(M.blurb)+'</span><span class="tf">'+prog+arrow()+'</span></button>';
+  }).join('');
+  app.innerHTML='<header class="mast"><span class="wm">Training Games</span><span class="by">By Damilola Orija</span></header>'+
+   '<section class="hubhead"><span class="eyebrow">Health and social care practice</span><h1>Pick a module.<br><span class="soft">Make the call.</span></h1><p class="lead">You play a carer on shift, facing real situations one mini story at a time. Every choice has a cost, and the small everyday ones matter most. Play alone, or talk each decision through as a team.</p><div class="row"><button class="btn ghost" data-a="how">How to play</button></div></section>'+
+   '<section class="tiles" aria-label="Modules">'+tiles+'<div class="tile soon" aria-hidden="true"><span class="num">07</span><span class="eyebrow">Coming next</span><span class="tt">More modules</span><span class="tb">New tracks will appear here as they are added.</span></div></section>';
+}
+function rChars(){
+  var M=mod();
+  var b=M.chars.map(function(c,i){var d=S.done[dkey(M,c)];return '<button class="scn" data-a="pick-ch" data-i="'+i+'" aria-label="Play scenario '+(i+1)+': '+esc(c.title)+'"><span class="sn">'+(i<9?'0':'')+(i+1)+'</span><span class="st">'+esc(c.title)+'</span><span class="sf"><span class="cstars" aria-label="'+(d!==undefined?d+' stars':'Not played yet')+'">'+(d!==undefined?stars(d):'Not played')+'</span>'+arrow()+'</span></button>'}).join('');
+  app.innerHTML='<div class="crumb"><button class="back" data-a="hub">← All modules</button></div><div class="panel" style="max-width:none"><span class="eyebrow">Module '+M.num+' · '+esc(M.game)+'</span><h2>'+esc(M.title)+'</h2><p>'+esc(M.blurb)+'</p><div class="scns">'+b+'</div></div>';
+}
+function rIntro(){
+  var c=ch();
+  app.innerHTML=topbar()+tools()+'<div class="stage"><div class="lcard"><span class="step-lab">The situation</span><h2>'+esc(c.sub)+'</h2>'+c.intro.map(function(p){return '<p>'+esc(p)+'</p>'}).join('')+'<p class="ask">'+esc(c.ask)+'</p><button class="btn" data-a="go-step">Start the first decision</button></div><div class="scenewrap">'+sceneSVG(c,false)+'</div></div>';
+}
+function rDecision(){
+  var c=ch(),st=cur();
+  if(!S.order.length)S.order=shuffle([0,1,2,3]);
+  var o=S.order.map(function(oi,i){return '<button class="obtn" data-a="choose" data-i="'+oi+'"><span class="L">'+LET[i]+'</span><span>'+esc(st.opts[oi].t)+'</span></button>'}).join('');
+  app.innerHTML=topbar()+tools()+'<div class="stage"><div class="lcard"><span class="step-lab">Decision '+(S.step+1)+' of '+c.steps.length+'</span><h2>'+esc(st.title)+'</h2><p class="sit">'+esc(st.sit)+'</p><div class="obtns" role="group" aria-label="Choose what to do">'+o+'</div><p class="hint">Playing with a team? Talk it through together before you choose.</p></div><div class="scenewrap">'+sceneSVG(c,S.glove==='dirty')+'</div></div>';
+}
+function rFeedback(){
+  var c=ch(),st=cur(),op=st.opts[S.pick],d=op.glove==='dirty';
+  var letter=LET[S.order.indexOf(S.pick)];
+  var hits=op.hits.map(function(id){var h=c.hot.filter(function(x){return x.id===id})[0];return h?'<span class="tchip">'+h.i+' '+esc(h.l)+'</span>':''}).join('');
+  var last=S.step===c.steps.length-1;
+  var banner='<div class="gbanner '+(d?'bad':'ok')+'"><span class="gi">'+(d?c.mk:'✓')+'</span><span>'+esc(c.bn[d?1:0])+'</span></div>';
+  app.innerHTML=topbar()+tools()+'<div class="stage"><div class="lcard"><span class="step-lab">Decision '+(S.step+1)+' of '+c.steps.length+'</span><div class="yours"><small>Your choice</small>'+letter+'. '+esc(op.t)+'</div>'+banner+
+   '<div class="why"><b>What happened:</b> '+esc(op.why)+'</div>'+
+   '<div class="fb"><div class="fbrow"><b>Safety '+op.s+pips(op.s,'#0C0C0D')+'</b><span>'+SAFE_TXT[op.s]+'</span></div><div class="fbrow"><b>Pace '+op.tm+pips(op.tm,'#0C0C0D')+'</b><span>'+TIME_TXT[op.tm]+'</span></div><div class="fbrow"><b>Resources '+op.c+pips(op.c,'#0C0C0D')+'</b><span>'+COST_TXT[op.c]+'</span></div></div>'+
+   (hits?'<div><small class="smlab">'+esc(c.hl)+'</small></div><div class="trailrow">'+hits+'</div>':'')+
+   '<div class="lesson"><small>Remember this</small>'+esc(st.lesson)+'</div><button class="btn" data-a="next">'+(last?esc(c.uvBtn.replace(/^\S+\s/,'')):'Continue')+'</button></div><div class="scenewrap">'+sceneSVG(c,d)+'</div></div>';
+}
+function finish(){
+  var m=S.m,R=m.risk,n=ch().steps.length,oT=n>=3?5:4,e=R<=1?'clean':(R<oT?'near':'out');
+  var pt=e==='clean'?0:(e==='near'?2:5),pc=e==='clean'?0:(e==='near'?1:5);
+  var t=m.t+pt,c=m.c+pc;
+  var st=e==='clean'?((t<=Math.floor(2.5*n)&&c<=Math.floor(1.5*n))?3:2):(e==='near'?1:0);
+  S.res={e:e,pt:pt,pc:pc,t:t,c:c,st:st};
+  var k=dkey(mod(),ch());
+  if(S.done[k]===undefined||st>S.done[k])S.done[k]=st;
+}
+function rResult(){
+  var c=ch(),M=mod(),r=S.res,hit={},order=[];
+  S.trail.forEach(function(id){if(!hit[id]){hit[id]=1;order.push(id)}});
+  var byId={};c.hot.forEach(function(h){byId[h.id]=h});
+  var toks=c.hot.map(function(h){var b=hit[h.id];var dly=b?(order.indexOf(h.id)*0.5+0.4):0.2;return '<div class="tok '+(b?'bad':'ok')+'" style="left:'+h.x+'%;top:'+h.y+'%;--d:'+dly+'s"><span class="gx">'+c.mk+'</span><span class="ti">'+h.i+'</span><span class="tl">'+esc(h.l)+'</span></div>'}).join('');
+  var lines='';
+  for(var i=1;i<order.length;i++){var a=byId[order[i-1]],b=byId[order[i]];if(a&&b)lines+='<line class="trl" x1="'+a.x+'" y1="'+a.y+'" x2="'+b.x+'" y2="'+b.y+'" style="--d:'+(i*0.5+0.1)+'s"/>'}
+  var tag=r.e==='clean'?(r.st===3?['good','Safe and balanced']:['good','Safe, but over the top']):(r.e==='near'?['mid','A near miss']:['bad',M.outTag]);
+  var emoji=r.e==='clean'?'🎉':(r.e==='near'?'😬':'🚨');
+  var extra=r.e==='clean'?'':'<p class="note">'+(r.e==='near'?'Follow-up work added 2 to your Pace score and 1 to your Resources score.':'Dealing with the fallout added 5 to your Pace score and 5 to your Resources score.')+'</p>';
+  var bar=function(l,v,mx,col){return '<div class="sbar" style="--mc:'+col+'"><span>'+l+'</span><div class="track"><div class="fill" data-w="'+Math.min(100,v/mx*100)+'"></div></div><span>'+v+'</span></div>'};
+  var nxt='<button class="btn sm" data-a="chars">Play another scenario</button>';
+  app.innerHTML=topbar()+'<div class="uvwrap"><div class="uvhead"><h2>'+esc(c.uvTitle)+'</h2><span class="uvlead">'+esc(c.uvLead)+'</span></div><div class="board" id="board">'+toks+'<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">'+lines+'</svg><div class="uvgate" id="gate"><div><p>'+esc(c.gate)+'</p><button class="btn" data-a="uv">'+esc(c.uvBtn)+'</button></div></div></div></div>'+
+   '<div class="result" id="result" style="display:none"><div class="lcard verdict"><div class="vemoji" aria-hidden="true">'+emoji+'</div><div class="vstars" aria-label="'+r.st+' out of 3 stars">'+stars(r.st)+'</div><span class="vtag '+tag[0]+'">'+tag[1]+'</span><p>'+esc(c.end[r.e])+'</p><div class="scorebars">'+bar('Safety',S.m.s,3*ch().steps.length,'#0C0C0D')+bar('Pace',r.t,3*ch().steps.length+2,'#55555b')+bar('Resources',r.c,3*ch().steps.length+2,'#9a9aa0')+'</div>'+extra+(r.st<3?'<p class="note">'+(r.e==='clean'?'For three stars, stay safe without spending more than you need to.':'Replay to try for a clean ending.')+'</p>':'')+'<div class="row" style="justify-content:center"><button class="btn sm" data-a="replay">Play this scenario again</button>'+nxt+'<button class="btn ghost sm" data-a="hub">All modules</button></div></div>'+
+   '<div class="rules"><h3>'+esc(M.rulesTitle)+'</h3><ol>'+M.rules.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ol><p class="note" style="margin:10px 0 0">In short: '+esc(M.short)+'</p></div></div>';
+}
+function modal(){
+  var h='';
+  if(S.modal==='how')h='<h2>How to play</h2><ul><li>Pick a module, then a scenario. You always play the carer, and each scenario is a short story with its own traps.</li><li>Each scenario has a few decisions. Pick the option you think is best.</li><li>Every choice changes three scores. Safety is your protection. Pace and Resources show how much time and stock your choice uses up.</li><li>'+(S.screen==='hub'?'In some modules, a status chip shows whether things are under control.':esc(mod().howExtra))+'</li><li>At the end, a reveal shows where the risk spread, and you earn up to three stars.</li><li>Playing with a team on a shared screen? Talk through each choice before you pick.</li></ul>';
+  if(S.modal==='gloss')h='<h2>Glossary</h2><dl>'+mod().gloss.map(function(g){return '<dt>'+esc(g[0])+'</dt><dd>'+esc(g[1])+'</dd>'}).join('')+'</dl>';
+  if(S.modal==='sit'){var c=ch();h='<h2>'+esc(c.sub)+'</h2>'+c.intro.map(function(p){return '<p>'+esc(p)+'</p>'}).join('')+'<p class="ask">'+esc(c.ask)+'</p>'}
+  var old=$('.modal');if(old)old.remove();
+  if(!h)return;
+  var d=document.createElement('div');d.className='modal';d.setAttribute('role','dialog');d.setAttribute('aria-modal','true');
+  d.innerHTML='<div class="mbox">'+h+'<button class="btn sm mclose" data-a="close">Close</button></div>';
+  document.body.appendChild(d);
+  var b=$('.mclose',d);if(b)b.focus();
+}
+function render(){
+  S.modal=null;modal();
+  ({hub:rHub,chars:rChars,intro:rIntro,decision:rDecision,feedback:rFeedback,result:rResult})[S.screen]();
+  scrollTo({top:0});
+}
+function go(s){S.screen=s;render()}
+function startChar(i){
+  S.ci=i;S.step=0;S.order=[];S.pick=null;S.m={s:0,t:0,c:0,risk:0};S.glove='clean';S.trail=[];S.res=null;
+  go('intro');
+}
+
+/* ================= EVENTS ================= */
+var A={
+  hub:function(){go('hub')},
+  how:function(){S.modal='how';modal()},
+  gloss:function(){S.modal='gloss';modal()},
+  sit:function(){S.modal='sit';modal()},
+  close:function(){S.modal=null;modal()},
+  chars:function(){go('chars')},
+  'pick-mod':function(b){S.mi=+b.dataset.i;go('chars')},
+  'pick-ch':function(b){startChar(+b.dataset.i)},
+  'go-step':function(){S.order=[];go('decision')},
+  choose:function(b){
+    var i=+b.dataset.i,op=cur().opts[i];
+    S.pick=i;S.m.s+=op.s;S.m.t+=op.tm;S.m.c+=op.c;S.m.risk+=op.risk;S.glove=op.glove;
+    op.hits.forEach(function(id){S.trail.push(id)});
+    go('feedback');
+  },
+  next:function(){
+    var c=ch();
+    if(S.step<c.steps.length-1){S.step++;S.order=[];S.pick=null;go('decision')}
+    else{finish();go('result')}
+  },
+  uv:function(){
+    $('#gate').classList.add('off');$('#board').classList.add('on');
+    var n=Math.max(1,new Set(S.trail).size);
+    setTimeout(function(){var r=$('#result');r.style.display='grid';r.scrollIntoView({behavior:'smooth',block:'start'});
+      setTimeout(function(){document.querySelectorAll('.fill').forEach(function(f){f.style.width=f.dataset.w+'%'});if(S.res.st===3)confetti(140,1.3)},350)},900+n*500);
+  },
+  replay:function(){startChar(S.ci)}
+};
+document.addEventListener('click',function(e){
+  var b=e.target.closest('[data-a]');if(!b)return;
+  var f=A[b.dataset.a];if(f)f(b);
+});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&S.modal){S.modal=null;modal()}});
+
+rHub();
+})();
+</script>
+</body>
+</html>
