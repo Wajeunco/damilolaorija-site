@@ -54,16 +54,11 @@ html{-webkit-text-size-adjust:100%}
 <a href="https://claude.ai/artifact/WZwA1LxUHkAWZDEfuuYKKL" style="margin-top: auto; padding-top: 10px; font-weight: 600; font-size: 15px; color: #FFFFFF">Start the mini course</a>
 </div>
 <div style="background: #151517; border: 1px solid #2C2D31; padding: 28px; display: flex; flex-direction: column; gap: 12px; min-width: 0">
-<div style="font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #A5A7AC">Free mini course by Damilola Orija</div>
-<h3 style="font-size: 22px; line-height: 1.3; margin: 0; font-weight: 700; letter-spacing: -0.01em; color: #FFFFFF">Using AI as a care manager</h3>
-<p style="margin: 0; font-size: 15px; line-height: 1.7; color: #A5A7AC">I use AI in my own work as a registered manager. This mini course shows you how to give an AI tool the right context, write prompts that get accurate answers, set up your own Projects and agents, and know what must never be entered into it.</p>
-<span style="margin-top: auto; padding-top: 10px; font-weight: 600; font-size: 15px; color: #A5A7AC">Coming soon</span>
-</div>
-<div style="background: #151517; border: 1px solid #2C2D31; padding: 28px; display: flex; flex-direction: column; gap: 12px; min-width: 0">
-<div style="font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #A5A7AC">Free mini course by Damilola Orija</div>
-<h3 style="font-size: 22px; line-height: 1.3; margin: 0; font-weight: 700; letter-spacing: -0.01em; color: #FFFFFF">How to pass your CQC interview</h3>
-<p style="margin: 0; font-size: 15px; line-height: 1.7; color: #A5A7AC">Preparing for your registered manager interview? I have been there. This course is written by a working registered manager, with model answers and case studies for you to practise on.</p>
-<span style="margin-top: auto; padding-top: 10px; font-weight: 600; font-size: 15px; color: #A5A7AC">Coming soon</span>
+<div style="font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #A5A7AC">Free prompt by Damilola Orija</div>
+<h3 style="font-size: 22px; line-height: 1.3; margin: 0; font-weight: 700; letter-spacing: -0.01em; color: #FFFFFF">Personal Brand Website Prompt</h3>
+<p style="margin: 0; font-size: 15px; line-height: 1.7; color: #A5A7AC">This is the prompt I built from the way I created my own personal brand website. Copy it once and paste it into a new Claude chat.</p>
+<p style="margin: 0; font-size: 15px; line-height: 1.7; color: #A5A7AC">It turns Claude into a guide that takes you through building your own website one step at a time. You do not need to upload anything. If you want to reuse it, paste it into your Claude Project's instructions instead.</p>
+<button id="copy-site-prompt" type="button" style="margin-top: auto; align-self: flex-start; background: transparent; color: #FFFFFF; border: 1.5px solid #FFFFFF; border-radius: 999px; padding: 10px 22px; font: 600 15px 'Plus Jakarta Sans', system-ui, sans-serif; cursor: pointer">Copy the prompt</button>
 </div>
 <div style="background: #151517; border: 1px solid #2C2D31; padding: 28px; display: flex; flex-direction: column; gap: 12px; min-width: 0">
 <div style="font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #A5A7AC">Free tool by Damilola Orija</div>
@@ -91,5 +86,45 @@ html{-webkit-text-size-adjust:100%}
 </div>
 </div>
 
+<script type="text/plain" id="site-prompt">Help me build my personal website. Follow the instructions below exactly, and begin with Step 1.
+
+You are helping a person build their own personal website. Assume they are not technical and may be new to websites. Be warm, plain and practical.
+
+Ground rules
+
+1. Go one step at a time. Do the current step, show the result, then wait for the person to confirm before moving on. Never give them a long list of instructions at once.
+2. Never invent facts. Use only what the person has told you or what is in the documents they share. If a result, number, qualification or job title is missing, ask for it. Do not fill gaps with plausible wording.
+3. Ask before adding any result or number that the person has not given you. If a figure is not available, use wording the person can support, such as what changed, not how much.
+4. Protect privacy. Do not include home addresses, personal phone numbers or anything the person has not agreed to publish. Remind them not to put confidential or identifying information about clients, patients, residents or colleagues on a public site.
+5. Make one change at a time when refining. When the person asks for a change, change only that and keep everything else exactly as it was.
+6. Write plainly. Use full sentences and a confident, human tone. Avoid buzzwords, filler and fragments.
+7. Explain unfamiliar words the first time you use them, such as domain, DNS or hosting, in one short sentence.
+
+The six steps
+
+Step 1. Plan the site.
+Ask the person to share their CV and LinkedIn About section, and ask what they want the site to do (for example, win clients, get a job, show their work). Suggest which pages they need, give a one-sentence purpose for each, and list any facts you still need from them.
+
+Step 2. Write the copy.
+Ask whether they want to split the site into sides, such as "what I do at work" and "what I build or share outside work". Write plain, confident copy for each page using only facts they have given you. Flag every gap and ask rather than guess.
+
+Step 3. Design the site.
+Ask for their preferred look (colours, fonts, mood) and for their photos. Build a responsive site that works on a phone and a computer. Show the first version before changing anything else.
+
+Step 4. Refine.
+Take feedback one change at a time. Confirm what you changed after each edit. Check headings, links, spelling and how it looks on a phone.
+
+Step 5. Go live.
+Ask whether they already own a domain (a web address such as yourname.com). If not, explain that they can buy one from a registrar such as Namecheap, and that they should turn on privacy protection. Recommend simple hosting such as GitHub Pages for a site made of plain files. Walk through the setup slowly, telling them exactly what to click and waiting for confirmation after each step. Tell them that DNS settings (the records that point the domain at the host) can take up to a day to start working, and that the padlock (HTTPS) is switched on once the check passes.
+
+Step 6. Run an accuracy check.
+Before the site goes public, read the whole site and list every claim about the person, every number and every result. For each one, say whether the person gave you that information or whether you added it. Flag anything they should confirm. They are accountable for what their site says.
+
+Updating the site later
+
+Tell the person that when they want a change, they can ask you for the updated file, download it and upload it to their hosting, replacing the old version. Keep file names the same so links never break.</script>
+<script>
+(function(){var b=document.getElementById('copy-site-prompt');if(!b)return;b.addEventListener('click',function(){var t=document.getElementById('site-prompt').textContent;var done=function(){b.textContent='Copied. Now paste it into a new Claude chat.';setTimeout(function(){b.textContent='Copy the prompt'},3000)};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,function(){})}else{var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');done()}catch(e){}document.body.removeChild(a)}})})();
+</script>
 </body>
 </html>
